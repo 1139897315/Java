@@ -3,6 +3,7 @@ package com.qfedu.fmmall.dao;
 import com.qfedu.fmmall.entity.Category;
 import com.qfedu.fmmall.entity.CategoryVO;
 import com.qfedu.fmmall.general.GeneralDAO;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

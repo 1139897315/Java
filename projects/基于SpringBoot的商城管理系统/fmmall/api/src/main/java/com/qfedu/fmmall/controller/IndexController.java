@@ -24,6 +24,7 @@ import java.util.List;
 @Api(value = "提供首页数据显示所需的接口",tags = "首页管理")
 public class IndexController {
 
+
     @Autowired
     private IndexImgService indexImgService;
     @Autowired
@@ -42,7 +43,7 @@ public class IndexController {
     public ResultVO listCatetory(){
         return categoryService.listCategories();
     }
-
+    
 
     @GetMapping("/list-recommends")
     @ApiOperation("新品推荐接口")
