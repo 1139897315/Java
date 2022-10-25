@@ -31,9 +31,9 @@ public class EmployeeController {
 
     @Resource
     private EmployeeService employeeService;
-    @Resource
+    @Autowired
     private ObjectMapper objectMapper;
-    @Resource
+    @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
     @PostMapping("/login")
@@ -56,16 +56,17 @@ public class EmployeeController {
         //判断员工状态是否可用
         if (!(emp.getStatus() == 1))
             return ResultVO.error("该账号禁用");
+        System.out.println("在这..");
         //生成token
         JwtBuilder builder = Jwts.builder();
         // HashMap<String,Object> map = new HashMap<>();
         // map.put("key1","value1");
         // map.put("key2","value2");
 
-        String token = builder.setSubject(username)                     //主题，就是token中携带的数据
-                .setIssuedAt(new Date())                                //设置token的生成时间
-                .setId(username + "")                                   //设置用户id为token  id
-                // .setClaims(map)                                      //map中可以存放用户的角色权限信息
+        String token = builder.setSubject(username)                 //主题，就是token中携带的数据
+                .setIssuedAt(new Date())                            //设置token的生成时间
+                .setId(username + "")                               //设置用户id为token  id
+                // .setClaims(map)                                     //map中可以存放用户的角色权限信息
                 .setExpiration(new Date(System.currentTimeMillis() + 24*60*60*1000)) //设置token过期时间
                 .signWith(SignatureAlgorithm.HS256, "ithaorong")     //设置加密方式和加密密码
                 .compact();
@@ -79,23 +80,15 @@ public class EmployeeController {
         return ResultVO.success("登录成功！",token);
     }
 
+    @PostMapping("/register")
+    @ApiImplicitParam(dataType = "Employee",name = "employee", value = "输入账号、密码、昵称、头像等员工的信息",required = true)
+    public ResultVO register(@RequestBody Employee employee){
+        //根据账号判断是否已存在
 
-    @PostMapping("/loginout")
-    @ApiImplicitParam(dataType = "String",name = "token", value = "输入token",required = true)
-    public ResultVO loginout(@RequestHeader String token){
-        stringRedisTemplate.delete(token);
+        //若存在，则返回一个失败信息
+
+        //若不存在，则添加用户信息和设置为新用户
         return ResultVO.success("");
     }
-
-//    @PostMapping("/register")
-//    @ApiImplicitParam(dataType = "Employee",name = "employee", value = "输入账号、密码、昵称、头像等员工的信息",required = true)
-//    public ResultVO register(@RequestBody Employee employee){
-//        //根据账号判断是否已存在
-//
-//        //若存在，则返回一个失败信息
-//
-//        //若不存在，则添加用户信息和设置为新用户
-//        return ResultVO.success("");
-//    }
 
 }
