@@ -85,19 +85,18 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResultVO add(@RequestHeader String token, @RequestBody Employee new_emp){
-        String username = new_emp.getUsername();
-        String password = new_emp.getPassword();
+    public ResultVO add(@RequestHeader String token, @RequestBody Employee employee){
+        String username = employee.getUsername();
+        String password = employee.getPassword();
         password = DigestUtils.md5DigestAsHex(password.getBytes());
 
         //根据用户名查询数据库
         LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Employee::getUsername,username);
-        Employee is_emp = employeeService.getOne(queryWrapper);
-
         //判断数据是否存在该用户
         synchronized (this){
-            if (is_emp != null)
+            Employee emp = employeeService.getOne(queryWrapper);
+            if (emp != null)
                 return ResultVO.error("该用户已存在");
 
             //若不存在，则添加用户                （添加用户信息和设置为新用户）
@@ -109,16 +108,16 @@ public class EmployeeController {
                 return ResultVO.error("出现异常！");
             }
 
-            new_emp.setPassword(password);
+            employee.setPassword(password);
 
-            new_emp.setCreateTime(LocalDateTime.now());
-            new_emp.setUpdateTime(LocalDateTime.now());
+            employee.setCreateTime(LocalDateTime.now());
+            employee.setUpdateTime(LocalDateTime.now());
 
-            new_emp.setCreateUser(empId);
-            new_emp.setUpdateUser(empId);
+            employee.setCreateUser(empId);
+            employee.setUpdateUser(empId);
 
-            log.info(new_emp.toString());
-            employeeService.save(new_emp);
+            log.info(employee.toString());
+            employeeService.save(employee);
             return ResultVO.success("添加成功！");
         }
     }
@@ -153,17 +152,27 @@ public class EmployeeController {
         return ResultVO.success("", pageInfo);
     }
 
-//    @GetMapping
-//    public ResultVO query(@RequestHeader String token){
-//        Employee employee;
-//        try {
-//            String s = stringRedisTemplate.boundValueOps(token).get();
-//            employee = objectMapper.readValue(s, Employee.class);
-//        } catch (JsonProcessingException e) {
-//            return ResultVO.error("出现异常！");
-//        }
-//        return ResultVO.success("获取成功！",employee);
-//    }
+    @PutMapping
+    public ResultVO update(@RequestHeader String token, @RequestBody Employee employee){
+        synchronized (this) {
+            //修改人
+            Long empId;
+            try {
+                String s = stringRedisTemplate.boundValueOps(token).get();
+                empId = objectMapper.readValue(s, Employee.class).getId();
+            } catch (JsonProcessingException e) {
+                return ResultVO.error("出现异常！");
+            }
+
+            employee.setUpdateUser(empId);
+            //修改时间
+            employee.setUpdateTime(LocalDateTime.now());
+            //根据id修改
+            employeeService.updateById(employee);
+            //返回
+            return ResultVO.success("成功修改员工信息！");
+        }
+    }
 
 
 
