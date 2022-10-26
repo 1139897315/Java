@@ -1,6 +1,7 @@
 package com.ithaorong.reggie.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ithaorong.reggie.entity.Employee;
@@ -13,12 +14,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
+
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -70,6 +73,7 @@ public class EmployeeController {
                 .setExpiration(new Date(System.currentTimeMillis() + 24*60*60*1000)) //设置token过期时间
                 .signWith(SignatureAlgorithm.HS256, "ithaorong")     //设置加密方式和加密密码
                 .compact();
+
         //当用户登录成功之后，将token存入redis
         try {
             String userInfo = objectMapper.writeValueAsString(emp);
@@ -80,15 +84,88 @@ public class EmployeeController {
         return ResultVO.success("登录成功！",token);
     }
 
-    @PostMapping("/register")
-    @ApiImplicitParam(dataType = "Employee",name = "employee", value = "输入账号、密码、昵称、头像等员工的信息",required = true)
-    public ResultVO register(@RequestBody Employee employee){
-        //根据账号判断是否已存在
+    @PostMapping
+    public ResultVO add(@RequestHeader String token, @RequestBody Employee new_emp){
+        String username = new_emp.getUsername();
+        String password = new_emp.getPassword();
+        password = DigestUtils.md5DigestAsHex(password.getBytes());
 
-        //若存在，则返回一个失败信息
+        //根据用户名查询数据库
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Employee::getUsername,username);
+        Employee is_emp = employeeService.getOne(queryWrapper);
 
-        //若不存在，则添加用户信息和设置为新用户
-        return ResultVO.success("");
+        //判断数据是否存在该用户
+        synchronized (this){
+            if (is_emp != null)
+                return ResultVO.error("该用户已存在");
+
+            //若不存在，则添加用户                （添加用户信息和设置为新用户）
+            Long empId;
+            try {
+                String s = stringRedisTemplate.boundValueOps(token).get();
+                empId = objectMapper.readValue(s, Employee.class).getId();
+            } catch (JsonProcessingException e) {
+                return ResultVO.error("出现异常！");
+            }
+
+            new_emp.setPassword(password);
+
+            new_emp.setCreateTime(LocalDateTime.now());
+            new_emp.setUpdateTime(LocalDateTime.now());
+
+            new_emp.setCreateUser(empId);
+            new_emp.setUpdateUser(empId);
+
+            log.info(new_emp.toString());
+            employeeService.save(new_emp);
+            return ResultVO.success("添加成功！");
+        }
     }
 
+    /**
+     * 员工信息分页查询
+     * @param page
+     * @param pageSize
+     * @param name
+     * @return
+     */
+    @GetMapping("/page")
+    public ResultVO page(int page, int pageSize,String name){
+        //构造分页构造器
+        Page pageInfo = new Page(page,pageSize);
+
+        //构造条件构造器
+        LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<Employee>();
+        //执行查询，当name不为空
+        if(name!=null && name.length() > 0){
+            for (int i = 0; i < name.length(); i++) {
+                if (!Character.isWhitespace(name.charAt(i))){
+                    queryWrapper.like(Employee::getName,name);
+                }
+
+            }
+        }
+        //添加排序条件
+        queryWrapper.orderByDesc(Employee::getUpdateTime);
+
+        employeeService.page(pageInfo,queryWrapper);
+        return ResultVO.success("", pageInfo);
+    }
+
+//    @GetMapping
+//    public ResultVO query(@RequestHeader String token){
+//        Employee employee;
+//        try {
+//            String s = stringRedisTemplate.boundValueOps(token).get();
+//            employee = objectMapper.readValue(s, Employee.class);
+//        } catch (JsonProcessingException e) {
+//            return ResultVO.error("出现异常！");
+//        }
+//        return ResultVO.success("获取成功！",employee);
+//    }
+
+
+
 }
+
