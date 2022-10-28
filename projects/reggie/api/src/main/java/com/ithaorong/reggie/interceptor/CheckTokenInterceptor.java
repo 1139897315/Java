@@ -8,9 +8,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
 
@@ -37,9 +40,8 @@ public class CheckTokenInterceptor implements HandlerInterceptor {
         }else{
             //判断token是否在token中过期
             //判断token是否在redis中过期
-//            String s = stringRedisTemplate.boundValueOps(token).get();
-//            System.out.println(token);
-//            System.out.println(s);
+            String s = stringRedisTemplate.boundValueOps(token).get();
+            System.out.println("Interceptor=====token:"+token);
 //            if(s == null){
 //                doResponse(response,ResultVO.error("请先登录！"));
 //            }else{
@@ -68,8 +70,10 @@ public class CheckTokenInterceptor implements HandlerInterceptor {
     }
 
     private void doResponse(HttpServletResponse response,ResultVO resultVO) throws IOException {
+        response.reset();
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
+//        ServletOutputStream out = response.getOutputStream();
         PrintWriter out = response.getWriter();
         String s = new ObjectMapper().writeValueAsString(resultVO);
         out.print(s);

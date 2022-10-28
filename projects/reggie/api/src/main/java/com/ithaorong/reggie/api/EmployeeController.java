@@ -12,6 +12,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,16 +32,16 @@ import java.util.concurrent.TimeUnit;
 @Api(value = "提供员工相关接口",tags = "员工管理")
 @RequestMapping("/employee")
 public class EmployeeController {
-
     @Resource
     private EmployeeService employeeService;
-    @Autowired
+    @Resource
     private ObjectMapper objectMapper;
-    @Autowired
+    @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+
     @PostMapping("/login")
-    @ApiImplicitParam(dataType = "Employee",name = "employee", value = "输入账号、密码",required = true)
+    @ApiImplicitParam(dataType = "Employee",name = "employee", value = "登录接口",required = true)
     public ResultVO login(@RequestBody Employee employee){
         String username = employee.getUsername();
         String password = employee.getPassword();
@@ -84,15 +85,23 @@ public class EmployeeController {
         return ResultVO.success("登录成功！",token);
     }
 
+    /**
+     * 添加员工
+     * @param token
+     * @param employee
+     * @return
+     */
     @PostMapping
+    @ApiImplicitParam(dataType = "Employee",name = "employee", value = "添加员工接口",required = true)
     public ResultVO add(@RequestHeader String token, @RequestBody Employee employee){
         String username = employee.getUsername();
+
         String password = employee.getPassword();
         password = DigestUtils.md5DigestAsHex(password.getBytes());
 
         //根据用户名查询数据库
         LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Employee::getUsername,username);
+        queryWrapper.eq(Employee::getUsername, username);
         //判断数据是否存在该用户
         synchronized (this){
             Employee emp = employeeService.getOne(queryWrapper);
@@ -102,12 +111,13 @@ public class EmployeeController {
             //若不存在，则添加用户                （添加用户信息和设置为新用户）
             Long empId;
             try {
-                String s = stringRedisTemplate.boundValueOps(token).get();
+                String s = stringRedisTemplate.opsForValue().get(token);
                 empId = objectMapper.readValue(s, Employee.class).getId();
             } catch (JsonProcessingException e) {
                 return ResultVO.error("出现异常！");
             }
 
+            employee.setId(0L);
             employee.setPassword(password);
 
             employee.setCreateTime(LocalDateTime.now());
@@ -116,7 +126,6 @@ public class EmployeeController {
             employee.setCreateUser(empId);
             employee.setUpdateUser(empId);
 
-            log.info(employee.toString());
             employeeService.save(employee);
             return ResultVO.success("添加成功！");
         }
@@ -130,7 +139,12 @@ public class EmployeeController {
      * @return
      */
     @GetMapping("/page")
-    public ResultVO page(int page, int pageSize,String name){
+    @ApiImplicitParams({
+        @ApiImplicitParam(dataType = "int",name = "page", value = "当前页",required = true),
+        @ApiImplicitParam(dataType = "int",name = "pageSize", value = "每页多少条数据",required = true),
+        @ApiImplicitParam(dataType = "String",name = "name", value = "查询的姓名",required = true)
+    })
+    public ResultVO page(@RequestHeader String token,int page, int pageSize,String name){
         //构造分页构造器
         Page pageInfo = new Page(page,pageSize);
 
@@ -149,17 +163,29 @@ public class EmployeeController {
         queryWrapper.orderByDesc(Employee::getUpdateTime);
 
         employeeService.page(pageInfo,queryWrapper);
-        return ResultVO.success("", pageInfo);
+        return ResultVO.success("查询成功！", pageInfo);
     }
 
+    /**
+     * 修改员工信息接口
+     * @param token
+     * @param employee
+     * @return
+     */
     @PutMapping
+    @ApiImplicitParam(dataType = "Employee",name = "employee", value = "员工信息修改接口",required = true)
     public ResultVO update(@RequestHeader String token, @RequestBody Employee employee){
         synchronized (this) {
             //修改人
             Long empId;
             try {
+                System.out.println("执行到了===1");
                 String s = stringRedisTemplate.boundValueOps(token).get();
+                System.out.println("token"+token);
+                System.out.println("value"+s);
                 empId = objectMapper.readValue(s, Employee.class).getId();
+                System.out.println("执行到了===3");
+
             } catch (JsonProcessingException e) {
                 return ResultVO.error("出现异常！");
             }
@@ -174,6 +200,24 @@ public class EmployeeController {
         }
     }
 
+    /**
+     *根据id获取员工信息接口
+     * @param token
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    @ApiImplicitParam(dataType = "Long",name = "id", value = "员工信息修改接口",required = true)
+    public ResultVO getById(@RequestHeader String token, @PathVariable Long id){
+
+        Employee employee = employeeService.getById(id);
+
+        if(employee != null){
+            return ResultVO.success("查询成功！",employee);
+        }
+
+        return ResultVO.error("没有查询到页面数据");
+    }
 
 
 }
