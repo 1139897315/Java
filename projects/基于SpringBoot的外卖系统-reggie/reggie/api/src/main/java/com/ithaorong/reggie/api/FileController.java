@@ -59,7 +59,7 @@ public class FileController {
 
     @GetMapping("/download")
     public void download(String name, HttpServletResponse response){
-        System.out.println("name==========="+name);
+
         try {
             //输入流，通过输入流读取文件内容
             FileInputStream inputStream = new FileInputStream(new File(basePath + name));
@@ -74,7 +74,6 @@ public class FileController {
             byte[] bytes = new byte[1024];
             while ((len = inputStream.read(bytes)) != -1){
                 outputStream.write(bytes,0,len);
-                System.out.println(bytes);
                 outputStream.flush();
             }
 

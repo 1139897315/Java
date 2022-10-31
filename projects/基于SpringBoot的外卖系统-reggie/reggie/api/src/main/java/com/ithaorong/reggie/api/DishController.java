@@ -46,19 +46,18 @@ public class DishController {
      *    4.点击保存按钮，发送异步请求，将菜品提交给服务端
      */
     @PostMapping
-    public ResultVO save(@RequestHeader String token, DishDto dishDto) {
+    public ResultVO save(@RequestHeader String token, @RequestBody DishDto dishDto) {
 
-        return dishService.saveWithFlavor(dishDto);
+        return dishService.saveWithFlavor(token,dishDto);
     }
 
     /**
      * 修改菜品
-     *
      */
     @PutMapping
     @ApiImplicitParam(dataType = "Dish",name = "dish", value = "菜品信息修改接口",required = true)
     public ResultVO update(@RequestHeader String token, @RequestBody DishDto dishDto){
-        return dishService.updateWithFlavor(dishDto);
+        return dishService.updateWithFlavor(token, dishDto);
     }
 
     /**
@@ -70,7 +69,13 @@ public class DishController {
     @GetMapping("/{id}")
     @ApiImplicitParam(dataType = "Long",name = "id", value = "菜品信息修改接口",required = true)
     public ResultVO getById(@RequestHeader String token, @PathVariable Long id){
+
         return dishService.getByIdWithFlavor(id);
+    }
+
+    @PostMapping("/status/{status}")
+    public ResultVO updateStatusById(@RequestHeader String token, @PathVariable int status, @RequestParam("ids") List<Long> ids){
+        return dishService.updateStatusById(token, status, ids);
     }
 
 
@@ -131,9 +136,6 @@ public class DishController {
 
     /**
      * 根据条件查询菜品信息（排查）
-     * @param token
-     * @param dish
-     * @return
      */
     @GetMapping("/list")
     public ResultVO list(@RequestHeader String token, Dish dish){
@@ -153,4 +155,8 @@ public class DishController {
     /**
      * 删除菜品
      */
+    @DeleteMapping
+    public ResultVO delete(@RequestHeader String token, @RequestParam("ids") List<Long> ids){
+        return dishService.delete(token, ids);
+    }
 }

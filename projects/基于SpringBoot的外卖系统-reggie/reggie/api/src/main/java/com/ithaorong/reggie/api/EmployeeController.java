@@ -179,12 +179,8 @@ public class EmployeeController {
             //修改人
             Long empId;
             try {
-                System.out.println("执行到了===1");
                 String s = stringRedisTemplate.boundValueOps(token).get();
-                System.out.println("token"+token);
-                System.out.println("value"+s);
                 empId = objectMapper.readValue(s, Employee.class).getId();
-                System.out.println("执行到了===3");
 
             } catch (JsonProcessingException e) {
                 return ResultVO.error("出现异常！");

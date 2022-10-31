@@ -39,15 +39,13 @@ public class CheckTokenInterceptor implements HandlerInterceptor {
             doResponse(response,ResultVO.error("请先登录！"));
         }else{
             //判断token是否在token中过期
-            //判断token是否在redis中过期
             String s = stringRedisTemplate.boundValueOps(token).get();
-            System.out.println("Interceptor=====token:"+token);
-//            if(s == null){
-//                doResponse(response,ResultVO.error("请先登录！"));
-//            }else{
-//                stringRedisTemplate.boundValueOps(token).expire(30, TimeUnit.MINUTES);
-//                return true;
-//            }
+            if(s == null){
+                doResponse(response,ResultVO.error("请先登录！"));
+            }else{
+                stringRedisTemplate.boundValueOps(token).expire(30, TimeUnit.MINUTES);
+                return true;
+            }
             return true;
             /**
              try {
