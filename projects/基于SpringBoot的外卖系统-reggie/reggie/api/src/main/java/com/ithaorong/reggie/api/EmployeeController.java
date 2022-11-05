@@ -1,6 +1,7 @@
 package com.ithaorong.reggie.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -204,6 +205,36 @@ public class EmployeeController {
     }
 
     /**
+     * 传入id和密码
+     * @param token
+     * @param employee
+     * @return
+     */
+    @PutMapping("/updatePassword")
+    @ApiImplicitParam(dataType = "Employee",name = "employee", value = "员工密码修改接口",required = true)
+    public ResultVO updatePassword(@RequestHeader String token, @RequestBody Employee employee){
+        synchronized (this) {
+            //修改人
+            Long empId;
+            try {
+                String s = stringRedisTemplate.boundValueOps(token).get();
+                empId = objectMapper.readValue(s, Employee.class).getId();
+
+            } catch (JsonProcessingException e) {
+                return ResultVO.error("出现异常！");
+            }
+            LambdaUpdateWrapper<Employee> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(Employee::getId,employee.getId());
+            updateWrapper.set(Employee::getPassword,DigestUtils.md5DigestAsHex(employee.getPassword().getBytes()));
+            updateWrapper.set(Employee::getUpdateTime,LocalDateTime.now());
+            updateWrapper.set(Employee::getUpdateUser,empId);
+            //根据id修改
+            employeeService.update(updateWrapper);
+            //返回
+            return ResultVO.success("成功修改员工密码！");
+        }
+    }
+    /**
      *根据id获取员工信息接口
      * @param token
      * @param id
@@ -214,7 +245,6 @@ public class EmployeeController {
     public ResultVO getById(@RequestHeader String token, @PathVariable Long id){
 
         Employee employee = employeeService.getById(id);
-
         if(employee != null){
             return ResultVO.success("查询成功！",employee);
         }

@@ -28,7 +28,7 @@ import java.util.*;
 @CrossOrigin
 @Slf4j
 @Api(value = "提供订单相关接口",tags = "订单管理")
-@RequestMapping("/address")
+@RequestMapping("/order")
 public class OrderController {
     @Resource
     private StringRedisTemplate stringRedisTemplate;

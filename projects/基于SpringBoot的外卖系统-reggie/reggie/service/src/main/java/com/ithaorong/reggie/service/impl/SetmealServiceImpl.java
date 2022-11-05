@@ -158,14 +158,18 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
             queryWrapper.eq(SetmealDish::getDishId,setmealDto.getId());
             setmealDishService.remove(queryWrapper);
 
+
             //添加当前提交过来的口味
             List<SetmealDish> setmealDishes = setmealDto.getSetmealDishes();
             setmealDishes.stream().map((item) -> {
+
+                item.setSetmealId(setmealDto.getId());
                 item.setDishId(setmealDto.getId());
-
+                item.setCreateUser(empId);
+                item.setCreateTime(LocalDateTime.now());
                 item.setUpdateTime(LocalDateTime.now());
-
                 item.setUpdateUser(empId);
+
                 return item;
             }).collect(Collectors.toList());
             setmealDishService.saveBatch(setmealDishes);

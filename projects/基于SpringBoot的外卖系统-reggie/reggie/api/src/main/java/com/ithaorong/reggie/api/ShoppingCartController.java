@@ -72,12 +72,12 @@ public class ShoppingCartController {
      * @return
      */
     @PutMapping("/updateNum")
-    public ResultVO updateCartNum(Long cartId, int cartNum) {
+    public ResultVO updateCartNum(@RequestBody ShoppingCart shoppingCart) {
         synchronized (this){
             //条件
             LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(ShoppingCart::getId,cartId);
-            updateWrapper.set(ShoppingCart::getNumber,cartNum);
+            updateWrapper.eq(ShoppingCart::getId,shoppingCart.getId());
+            updateWrapper.set(ShoppingCart::getNumber,shoppingCart.getNumber());
 
             shoppingCartService.update(updateWrapper);
             return ResultVO.success("修改成功！");
