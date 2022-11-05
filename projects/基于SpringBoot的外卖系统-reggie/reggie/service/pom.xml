@@ -13,8 +13,24 @@
     <artifactId>service</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.59</version>
+        </dependency>
 
+        <!--后台查询微信用户信息-->
+        <dependency>
+            <groupId>com.github.liyiorg</groupId>
+            <artifactId>weixin-popular</artifactId>
+            <version>2.8.5</version>
+        </dependency>
 
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.3.5</version>
+        </dependency>
 
         <dependency>
             <groupId>com.ithaorong.reggie</groupId>

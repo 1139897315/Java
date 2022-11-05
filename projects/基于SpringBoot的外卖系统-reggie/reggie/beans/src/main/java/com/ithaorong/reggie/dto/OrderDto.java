@@ -2,12 +2,12 @@ package com.ithaorong.reggie.dto;
 
 
 import com.ithaorong.reggie.entity.OrderDetail;
-import com.ithaorong.reggie.entity.Orders;
+import com.ithaorong.reggie.entity.Order;
 import lombok.Data;
 import java.util.List;
 
 @Data
-public class OrdersDto extends Orders {
+public class OrderDto extends Order {
 
     private String userName;
 

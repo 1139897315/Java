@@ -21,7 +21,7 @@ import java.util.UUID;
 @RestController
 @CrossOrigin
 @Slf4j
-@Api(value = "提供文件相关接口",tags = "文件上传和下载管理")
+@Api(value = "提供文件相关接口",tags = "文件管理")
 @RequestMapping("/common")
 public class FileController {
     @Value("${reggie.path}")

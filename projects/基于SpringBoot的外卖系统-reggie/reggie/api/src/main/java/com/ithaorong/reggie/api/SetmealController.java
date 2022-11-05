@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ithaorong.reggie.dto.DishDto;
 import com.ithaorong.reggie.dto.SetmealDto;
 import com.ithaorong.reggie.entity.Category;
+import com.ithaorong.reggie.entity.Dish;
 import com.ithaorong.reggie.entity.Setmeal;
 import com.ithaorong.reggie.service.CategoryService;
 import com.ithaorong.reggie.service.SetmealService;
@@ -33,18 +34,25 @@ public class SetmealController {
     @PostMapping
     @ApiImplicitParam(dataType = "SetmealDto",name = "setmealDto", value = "添加套餐接口",required = true)
     public ResultVO save(@RequestHeader String token, @RequestBody SetmealDto setmealDto){
-        //添加套餐
-        //套餐名称
-        //套餐价格
-        //套餐分类
-        //套餐菜品集合
-        //显示菜品分类
-        //显示该分类下的所有菜品
-        //生成菜品集合
-        //套餐图片
-        //套餐描述
-        //添加套餐菜品关系
         return setmealService.saveWithDish(token,setmealDto);
+    }
+
+    /**
+     * 根据条件查询套餐信息
+     */
+    @GetMapping("/listAll")
+    public ResultVO listAll(){
+        //构造条件构造器
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+
+        //添加条件，查询状态为1的（起售）
+        queryWrapper.eq(Setmeal::getStatus,1);
+        //添加排序条件
+        queryWrapper.orderByDesc(Setmeal::getCategoryId).orderByDesc(Setmeal::getUpdateTime);
+
+        List<Setmeal> list = setmealService.list(queryWrapper);
+
+        return ResultVO.success("查询成功！", list);
     }
 
     @GetMapping("/page")

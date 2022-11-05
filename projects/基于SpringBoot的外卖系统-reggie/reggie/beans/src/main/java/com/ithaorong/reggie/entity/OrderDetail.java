@@ -20,7 +20,7 @@ public class OrderDetail implements Serializable {
     private String name;
 
     //订单id
-    private Long orderId;
+    private String  orderId;
 
 
     //菜品id

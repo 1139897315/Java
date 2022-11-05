@@ -14,7 +14,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.DigestUtils;
@@ -83,6 +82,14 @@ public class EmployeeController {
             return ResultVO.error("出现异常！");
         }
         return ResultVO.success("登录成功！",token);
+    }
+
+    @PostMapping("/loginOut")
+    public ResultVO loginOut(@RequestHeader String token){
+        synchronized (this){
+            stringRedisTemplate.delete(token);
+            return ResultVO.success("登录成功！",token);
+        }
     }
 
     /**

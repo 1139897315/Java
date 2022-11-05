@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.annotation.Resource;
-
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {
 
@@ -20,12 +18,13 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(checkTokenInterceptor)
-//                .addPathPatterns("/shopcart/**")
-//                .addPathPatterns("/orders/**")
-//                .addPathPatterns("/useraddr/**")
-//                .addPathPatterns("/user/check")
                 .addPathPatterns("/employee/**")
-                .excludePathPatterns("/employee/login");
+                .excludePathPatterns("/employee/login")
+                .addPathPatterns("/dish/**")
+                .excludePathPatterns("/dish/listAll")
+                .addPathPatterns("/category/**")
+                .excludePathPatterns("/category/listAll")
+                .addPathPatterns("/setmeal/**");
 
 
         registry.addInterceptor(setTimeInterceptor).addPathPatterns("/**");

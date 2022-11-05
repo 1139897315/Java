@@ -145,11 +145,28 @@ public class DishController {
         queryWrapper.eq(Dish::getStatus,1);
         //获取该分类下的
         queryWrapper.eq(dish.getCategoryId()!=null,Dish::getCategoryId,dish.getCategoryId());
-        queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
+        queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime).orderByDesc(Dish::getUpdateTime);
 
         List<Dish> list = dishService.list(queryWrapper);
 
         return ResultVO.success("查询成功！",list);
+    }
+    /**
+     * 根据条件查询菜品信息
+     */
+    @GetMapping("/listAll")
+    public ResultVO listAll(){
+        //构造条件构造器
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<Dish>();
+        //添加条件，查询状态为1的（起售）
+        queryWrapper.eq(Dish::getStatus,1);
+
+        //添加排序条件
+        queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getCategoryId);
+
+        List<Dish> list = dishService.list(queryWrapper);
+
+        return ResultVO.success("查询成功！", list);
     }
 
     /**

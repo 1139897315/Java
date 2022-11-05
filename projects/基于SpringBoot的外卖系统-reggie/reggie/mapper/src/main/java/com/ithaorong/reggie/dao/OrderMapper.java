@@ -1,0 +1,7 @@
+package com.ithaorong.reggie.dao;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.ithaorong.reggie.entity.Order;
+
+public interface OrderMapper extends BaseMapper<Order> {
+}

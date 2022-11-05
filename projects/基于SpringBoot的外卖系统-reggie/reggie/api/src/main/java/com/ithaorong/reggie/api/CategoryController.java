@@ -179,4 +179,19 @@ public class CategoryController {
 
         return ResultVO.success("查询成功！", list);
     }
+    /**
+     * 根据条件查询分类信息
+     */
+    @GetMapping("/listAll")
+    public ResultVO listAll(){
+        //构造条件构造器
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<Category>();
+
+        //添加排序条件
+        queryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getType);
+
+        List<Category> list = categoryService.list(queryWrapper);
+
+        return ResultVO.success("查询成功！", list);
+    }
 }

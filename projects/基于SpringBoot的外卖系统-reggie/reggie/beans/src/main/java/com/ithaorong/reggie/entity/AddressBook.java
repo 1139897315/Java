@@ -79,16 +79,6 @@ public class AddressBook implements Serializable {
     private LocalDateTime updateTime;
 
 
-    //创建人
-    @TableField(fill = FieldFill.INSERT)
-    private Long createUser;
-
-
-    //修改人
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Long updateUser;
-
-
     //是否删除
     private Integer isDeleted;
 }
