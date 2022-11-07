@@ -50,7 +50,7 @@ public class AddressBookController {
         synchronized (this){
             LambdaUpdateWrapper<AddressBook> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.eq(AddressBook::getId,id);
-            updateWrapper.set(AddressBook::getIsDefault,0);
+            updateWrapper.set(AddressBook::getIsDeleted,1);
             return ResultVO.success("删除成功！");
         }
     }
@@ -58,8 +58,8 @@ public class AddressBookController {
     @PutMapping("/update")
     public ResultVO update(@RequestBody AddressBook addressBook){
         synchronized (this){
+            addressBook.setIsDeleted(0);
             addressBook.setUpdateTime(LocalDateTime.now());
-            addressBook.setIsDeleted(1);
 
             addressBookService.updateById(addressBook);
 
@@ -85,17 +85,17 @@ public class AddressBookController {
     public ResultVO getAddressById(Long id){
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(AddressBook::getId,id);
-        queryWrapper.eq(AddressBook::getIsDeleted,1);
-        List<AddressBook> list = addressBookService.list(queryWrapper);
+        queryWrapper.eq(AddressBook::getIsDeleted,0);
+        AddressBook addressBook = addressBookService.getOne(queryWrapper);
 
-        return ResultVO.success("查询成功！",list);
+        return ResultVO.success("查询成功！",addressBook);
     }
 
     @GetMapping("/listByUserId")
     public ResultVO getAddressByUserId(Long userId){
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(AddressBook::getId,userId);
-        queryWrapper.eq(AddressBook::getIsDeleted,1);
+        queryWrapper.eq(AddressBook::getIsDeleted,0);
         List<AddressBook> list = addressBookService.list(queryWrapper);
 
         return ResultVO.success("查询成功！",list);

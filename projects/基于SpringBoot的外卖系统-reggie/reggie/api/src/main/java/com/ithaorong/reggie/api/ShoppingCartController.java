@@ -47,6 +47,7 @@ public class ShoppingCartController {
             }
 
             cart.setId(0L);
+            cart.setIsDeleted(0);
             cart.setCreateTime(LocalDateTime.now());
             cart.setUserId(userId);
 
@@ -59,7 +60,8 @@ public class ShoppingCartController {
     @Transactional(propagation = Propagation.SUPPORTS)
     public ResultVO listShoppingCartsByUserId(int userId) {
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShoppingCart::getId,userId);
+        queryWrapper.eq(ShoppingCart::getId,userId)
+                    .eq(ShoppingCart::getIsDeleted,0);
 
         List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
         return ResultVO.success("查询成功！",list);
@@ -67,8 +69,8 @@ public class ShoppingCartController {
 
     /**
      * 修改购物车数量接口
-     * @param cartId
-     * @param cartNum
+     * @param shoppingCart.cartId
+     * @param shoppingCart.cartNumber
      * @return
      */
     @PutMapping("/updateNum")
@@ -92,7 +94,9 @@ public class ShoppingCartController {
     @DeleteMapping("/delete")
     public ResultVO delete(Long cartId){
         synchronized (this){
-            shoppingCartService.removeById(cartId);
+            LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(ShoppingCart::getId,cartId);
+            updateWrapper.set(ShoppingCart::getIsDeleted,1);
             return ResultVO.success("删除成功！");
         }
     }

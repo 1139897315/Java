@@ -27,6 +27,9 @@ public class Order implements Serializable {
     //下单用户id
     private Long userId;
 
+    //修改用户id
+    private Long updateUser;
+
     //结账时间
     private LocalDateTime checkoutTime;
 
