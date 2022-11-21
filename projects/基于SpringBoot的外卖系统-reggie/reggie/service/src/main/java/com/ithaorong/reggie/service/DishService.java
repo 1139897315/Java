@@ -13,6 +13,6 @@ public interface DishService extends IService<Dish> {
     ResultVO getByIdWithFlavor(Long id);
     ResultVO updateWithFlavor(String token, DishDto dishDto);
     ResultVO delete(String token, List<Long> ids);
-
+    List<DishDto> list(Dish dish);
     ResultVO updateStatusById(String token, int status, List<Long> ids);
 }

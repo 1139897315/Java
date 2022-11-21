@@ -2,6 +2,7 @@ package com.ithaorong.reggie.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -12,6 +13,7 @@ import java.util.Date;
  * 订单
  */
 @Data
+@TableName("orders")
 public class Order implements Serializable {
 
     private static final long serialVersionUID = 1L;

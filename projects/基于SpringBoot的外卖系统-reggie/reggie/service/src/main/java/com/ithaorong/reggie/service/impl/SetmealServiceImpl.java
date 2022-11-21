@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ithaorong.reggie.dao.SetmealMapper;
+import com.ithaorong.reggie.dto.CategoryDto;
+import com.ithaorong.reggie.dto.DishDto;
 import com.ithaorong.reggie.dto.SetmealDto;
 import com.ithaorong.reggie.entity.*;
 import com.ithaorong.reggie.service.SetmealDishService;
@@ -131,6 +133,30 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         setmealDto.setSetmealDishes(list);
 
         return ResultVO.success("查询成功",setmealDto);
+    }
+
+    //根据分类id查询套餐信息列表
+    public List<SetmealDto> getListByCategoryId(Long categoryId) {
+        //查询套餐基本信息
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Setmeal::getCategoryId,categoryId)
+                    .eq(Setmeal::getStatus,1);
+        List<Setmeal> setmeals = this.list(queryWrapper);
+
+        List<SetmealDto> list = setmeals.stream().map((item) -> {
+            SetmealDto setmealDto = new SetmealDto();
+            BeanUtils.copyProperties(item,setmealDto);
+
+            //查询套餐的口味信息
+            LambdaQueryWrapper<SetmealDish> setmealDishLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            setmealDishLambdaQueryWrapper.eq(SetmealDish::getDishId,setmealDto.getId());
+            List<SetmealDish> setmealDishes = setmealDishService.list(setmealDishLambdaQueryWrapper);
+            setmealDto.setSetmealDishes(setmealDishes);
+
+            return setmealDto;
+        }).collect(Collectors.toList());
+
+        return list;
     }
 
     @Transactional

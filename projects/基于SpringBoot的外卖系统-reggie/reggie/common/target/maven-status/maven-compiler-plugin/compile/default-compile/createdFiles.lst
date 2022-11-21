@@ -1,2 +1,6 @@
 com\ithaorong\reggie\vo\ResultVO.class
+com\ithaorong\reggie\config\MD5Utils.class
 com\ithaorong\reggie\config\SwaggerConfig.class
+com\ithaorong\reggie\config\MybatisPlusConfig.class
+com\ithaorong\reggie\config\WXAuth.class
+com\ithaorong\reggie\config\RedisKey.class

@@ -1,18 +1,25 @@
 package com.ithaorong.reggie.api;
 
+import com.ithaorong.reggie.entity.Dish;
+import com.ithaorong.reggie.entity.Setmeal;
+import com.ithaorong.reggie.service.DishService;
+import com.ithaorong.reggie.service.SetmealService;
 import com.ithaorong.reggie.vo.ResultVO;
+import com.sun.webkit.network.URLs;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -26,6 +33,10 @@ import java.util.UUID;
 public class FileController {
     @Value("${reggie.path}")
     private String basePath;
+    @Resource
+    private DishService dishService;
+    @Resource
+    private SetmealService setmealService;
 
     /**
      * 前端似乎带不了token，后期看是否可以维护，否则可能导致网络攻击服务器被图片内存占满
@@ -60,6 +71,31 @@ public class FileController {
     @GetMapping("/download")
     public void download(String name, HttpServletResponse response){
 
+//        try {
+//
+//            //filePath:图片完整路径
+//            URL urls = new URL(basePath + name);
+//            HttpURLConnection conn = (HttpURLConnection)urls.openConnection();
+//            conn.setRequestMethod("GET");
+//            conn.setConnectTimeout(50 * 1000);
+//            conn.setReadTimeout(50 * 1000);
+//            InputStream inStream = conn.getInputStream();
+//            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+//            byte[] buffer = new byte[2048];
+//            int len = 0;
+//            while( (len=inStream.read(buffer)) != -1 ){
+//                outStream.write(buffer, 0, len);
+//            }
+//            inStream.close();
+//            byte data[] = outStream.toByteArray();
+//            response.setContentType("image/jpg");
+//            OutputStream os = response.getOutputStream();
+//            os.write(data);
+//            os.flush();
+//            os.close();
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
         try {
             //输入流，通过输入流读取文件内容
             FileInputStream inputStream = new FileInputStream(new File(basePath + name));
@@ -84,5 +120,53 @@ public class FileController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /*
+         * //filePath:图片完整路径
+         * 	   URL urls = new URL(filePath);
+         *     HttpURLConnection conn = (HttpURLConnection)urls.openConnection();
+         *     conn.setRequestMethod("GET");
+         *     conn.setConnectTimeout(50 * 1000);
+         *     conn.setReadTimeout(50 * 1000);
+         *     InputStream inStream = conn.getInputStream();
+         * 	ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+         *     byte[] buffer = new byte[2048];
+         *     int len = 0;
+         *     while( (len=inStream.read(buffer)) != -1 ){
+         *         outStream.write(buffer, 0, len);
+         *     }
+         *     inStream.close();
+         *     byte data[] = outStream.toByteArray();
+         * 	response.setContentType("image/jpg");
+         *     OutputStream os = response.getOutputStream();
+         *     os.write(data);
+         *     os.flush();
+         *     os.close();
+         */
     }
+
+//    @GetMapping("/downloadAll")
+//    public void downloadAll(HttpServletResponse response){
+//
+//        List<Dish> dishList = dishService.list();
+//        List<Setmeal> setmealList = setmealService.list();
+//        for (Dish item : dishList) {
+//            item.getImage()
+//        }
+//        try {
+//            //Base64加密每张图片
+//            Base64.getEncoder().encodeToString(originalInput.getBytes());
+//
+//
+//            StringBuilder stringBuilder = new StringBuilder();
+//            stringBuilder.append(base)
+//            response.getWriter().println();
+//
+//
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//    }
 }

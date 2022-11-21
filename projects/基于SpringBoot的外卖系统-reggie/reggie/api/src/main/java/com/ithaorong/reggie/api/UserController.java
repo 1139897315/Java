@@ -49,6 +49,10 @@ public class UserController {
         return userService.authLogin(wxAuth);
     }
 
+//    @GetMapping("/getUser")
+//    public ResultVO getUserByOpenId(){
+//        return
+//    }
 
 //    /**
 //     * 添加员工

@@ -1,5 +1,14 @@
-com\ithaorong\reggie\interceptor\CheckTokenInterceptor.class
+com\ithaorong\reggie\api\FileController.class
 com\ithaorong\reggie\api\EmployeeController.class
+com\ithaorong\reggie\api\CategoryController.class
+com\ithaorong\reggie\api\DishController.class
+com\ithaorong\reggie\config\MyMetaObjectHandler.class
+com\ithaorong\reggie\api\UserController.class
 com\ithaorong\reggie\ApiApplication.class
-com\ithaorong\reggie\config\InterceptorConfig.class
+com\ithaorong\reggie\interceptor\CheckTokenInterceptor.class
+com\ithaorong\reggie\api\SetmealController.class
+com\ithaorong\reggie\api\ShoppingCartController.class
+com\ithaorong\reggie\api\OrderController.class
 com\ithaorong\reggie\interceptor\SetTimeInterceptor.class
+com\ithaorong\reggie\api\AddressBookController.class
+com\ithaorong\reggie\config\InterceptorConfig.class

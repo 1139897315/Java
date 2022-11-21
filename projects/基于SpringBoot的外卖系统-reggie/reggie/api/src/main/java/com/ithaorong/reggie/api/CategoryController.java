@@ -1,23 +1,33 @@
 package com.ithaorong.reggie.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ithaorong.reggie.dto.CategoryDto;
+import com.ithaorong.reggie.dto.DishDto;
+import com.ithaorong.reggie.dto.SetmealDto;
 import com.ithaorong.reggie.entity.Category;
+import com.ithaorong.reggie.entity.Dish;
+import com.ithaorong.reggie.entity.DishFlavor;
 import com.ithaorong.reggie.entity.Employee;
 import com.ithaorong.reggie.service.CategoryService;
+import com.ithaorong.reggie.service.DishService;
+import com.ithaorong.reggie.service.SetmealService;
 import com.ithaorong.reggie.vo.ResultVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -31,6 +41,10 @@ public class CategoryController {
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private ObjectMapper objectMapper;
+    @Resource
+    private DishService dishService;
+    @Resource
+    private SetmealService setmealService;
 
 
     /**
@@ -169,7 +183,7 @@ public class CategoryController {
     @ApiImplicitParam(dataType = "Category",name = "category", value = "查询的姓名",required = true)
     public ResultVO list(@RequestHeader String token,Category category){
         //构造条件构造器
-        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<Category>();
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
 
         queryWrapper.eq(category.getType() != null, Category::getType,category.getType());
         //添加排序条件
@@ -180,18 +194,39 @@ public class CategoryController {
         return ResultVO.success("查询成功！", list);
     }
     /**
-     * 根据条件查询分类信息
+     * 根据条件查询分类以及其下的菜品套餐信息
      */
     @GetMapping("/listAll")
     public ResultVO listAll(){
         //构造条件构造器
-        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<Category>();
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
 
         //添加排序条件
         queryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getType);
-
+        //获取分类基本信息
         List<Category> list = categoryService.list(queryWrapper);
 
-        return ResultVO.success("查询成功！", list);
+        //获取菜品、套餐信息
+        List<CategoryDto> listDto = list.stream().map((item) -> {
+            CategoryDto categoryDto = new CategoryDto();
+            BeanUtils.copyProperties(item,categoryDto);
+
+            //菜品分类(包含口味)
+            if (categoryDto.getType() == 1){
+                Dish dish = new Dish();
+                dish.setCategoryId(categoryDto.getId());
+                List<DishDto> dishDtos = dishService.list(dish);
+                categoryDto.setDishes(dishDtos);
+            }
+            //套餐分类（包含菜品（包含口味））
+            else if (categoryDto.getType() == 2){
+                List<SetmealDto> setmealDtos = setmealService.getListByCategoryId(categoryDto.getId());
+                categoryDto.setSetmealDtos(setmealDtos);
+            }
+            //根据分类查找菜品
+            return categoryDto;
+        }).collect(Collectors.toList());
+        System.out.println("listDto===================="+listDto);
+        return ResultVO.success("查询成功！", listDto);
     }
 }

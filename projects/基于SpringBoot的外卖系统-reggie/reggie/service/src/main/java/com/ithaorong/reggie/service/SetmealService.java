@@ -13,6 +13,6 @@ public interface SetmealService extends IService<Setmeal> {
     ResultVO removeByIds(String token, List<Long> ids);
     ResultVO getByIdWithDish(Long id);
     ResultVO updateWithDish(String token, SetmealDto setmealDto);
-
+    List<SetmealDto> getListByCategoryId(Long categoryId);
     ResultVO updateStatusById(String token, int status, List<Long> ids);
 }

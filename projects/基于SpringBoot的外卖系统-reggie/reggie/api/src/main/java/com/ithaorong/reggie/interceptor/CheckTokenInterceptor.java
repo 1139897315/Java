@@ -33,7 +33,6 @@ public class CheckTokenInterceptor implements HandlerInterceptor {
         }
         //获取token
         String token = request.getHeader("token");
-
         //判断是否携带token
         if(token == null){
             doResponse(response,ResultVO.error("请先登录！"));

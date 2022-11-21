@@ -20,18 +20,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="993c1915-1bb5-4bdf-95f2-a23099008468" name="默认更改列表" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/SetmealController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/SetmealController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的商城管理系统-fmmall/fmmall/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的商城管理系统-fmmall/fmmall/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/EmployeeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/EmployeeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/OrderController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/interceptor/CheckTokenInterceptor.java" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/interceptor/CheckTokenInterceptor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/META-INF/api.kotlin_module" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/SetmealController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/SetmealController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/mapper/target/classes/META-INF/mapper.kotlin_module" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/src/main/java/com/ithaorong/reggie/service/SetmealService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/src/main/java/com/ithaorong/reggie/service/SetmealService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/src/main/java/com/ithaorong/reggie/service/impl/SetmealServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/src/main/java/com/ithaorong/reggie/service/impl/SetmealServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/target/classes/META-INF/service.kotlin_module" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/target/classes/com/ithaorong/reggie/service/SetmealService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/target/classes/com/ithaorong/reggie/service/SetmealService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/target/classes/com/ithaorong/reggie/service/impl/SetmealServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/target/classes/com/ithaorong/reggie/service/impl/SetmealServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/AddressBookController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/AddressBookController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/EmployeeController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/EmployeeController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/OrderController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/OrderController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/ShoppingCartController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/ShoppingCartController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/interceptor/CheckTokenInterceptor.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/interceptor/CheckTokenInterceptor.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/beans/target/classes/com/ithaorong/reggie/dto/OrderDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/beans/target/classes/com/ithaorong/reggie/dto/OrderDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/beans/target/classes/com/ithaorong/reggie/entity/Order.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/beans/target/classes/com/ithaorong/reggie/entity/Order.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/beans/target/classes/com/ithaorong/reggie/entity/ShoppingCart.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/beans/target/classes/com/ithaorong/reggie/entity/ShoppingCart.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/src/main/java/com/ithaorong/reggie/service/impl/WXServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/src/main/java/com/ithaorong/reggie/service/impl/WXServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/target/classes/com/ithaorong/reggie/service/OrderService.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/target/classes/com/ithaorong/reggie/service/OrderService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/target/classes/com/ithaorong/reggie/service/impl/OrderServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie/service/target/classes/com/ithaorong/reggie/service/impl/OrderServiceImpl.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,7 +67,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../基于SpringBoot的外卖系统-reggie/reggie" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -106,6 +109,7 @@
       <workItem from="1666747315584" duration="5784000" />
       <workItem from="1666777936833" duration="100000" />
       <workItem from="1667178354627" duration="918000" />
+      <workItem from="1668663992811" duration="14000" />
     </task>
     <servers />
   </component>

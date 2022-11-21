@@ -1,12 +1,15 @@
 package com.ithaorong.reggie.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ithaorong.reggie.dto.DishDto;
 import com.ithaorong.reggie.entity.Category;
 import com.ithaorong.reggie.entity.Dish;
+import com.ithaorong.reggie.entity.DishFlavor;
 import com.ithaorong.reggie.service.CategoryService;
+import com.ithaorong.reggie.service.DishFlavorService;
 import com.ithaorong.reggie.service.DishService;
 import com.ithaorong.reggie.vo.ResultVO;
 import io.swagger.annotations.Api;
@@ -18,6 +21,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +34,8 @@ public class DishController {
 
     @Resource
     private DishService dishService;
+    @Resource
+    private DishFlavorService dishFlavorService;
     @Resource
     private CategoryService categoryService;
     @Resource
@@ -101,7 +107,6 @@ public class DishController {
                 if (!Character.isWhitespace(name.charAt(i))){
                     queryWrapper.like(Dish::getName,name);
                 }
-
             }
         }
 
@@ -131,7 +136,8 @@ public class DishController {
 
         dishDtoPage.setRecords(list);
 
-        return ResultVO.success("查询成功！", pageInfo);
+//        return ResultVO.success("查询成功！", pageInfo);
+        return ResultVO.success("查询成功！", dishDtoPage);
     }
 
     /**
@@ -139,16 +145,7 @@ public class DishController {
      */
     @GetMapping("/list")
     public ResultVO list(@RequestHeader String token, Dish dish){
-        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-
-        //添加条件，查询状态为1的（起售）
-        queryWrapper.eq(Dish::getStatus,1);
-        //获取该分类下的
-        queryWrapper.eq(dish.getCategoryId()!=null,Dish::getCategoryId,dish.getCategoryId());
-        queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime).orderByDesc(Dish::getUpdateTime);
-
-        List<Dish> list = dishService.list(queryWrapper);
-
+        List<DishDto> list = dishService.list(dish);
         return ResultVO.success("查询成功！",list);
     }
     /**
@@ -157,16 +154,28 @@ public class DishController {
     @GetMapping("/listAll")
     public ResultVO listAll(){
         //构造条件构造器
-        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<Dish>();
+        LambdaQueryWrapper<Dish> dishLambdaQueryWrapper = new LambdaQueryWrapper<>();
         //添加条件，查询状态为1的（起售）
-        queryWrapper.eq(Dish::getStatus,1);
+        dishLambdaQueryWrapper.eq(Dish::getStatus,1);
 
         //添加排序条件
-        queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getCategoryId);
+        dishLambdaQueryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getCategoryId);
 
-        List<Dish> list = dishService.list(queryWrapper);
+        List<Dish> list = dishService.list(dishLambdaQueryWrapper);
 
-        return ResultVO.success("查询成功！", list);
+        List<DishDto> listDto = list.stream().map((item) -> {
+            DishDto dishDto = new DishDto();
+            BeanUtils.copyProperties(item,dishDto);
+
+            //根据菜品查找口味
+            LambdaUpdateWrapper<DishFlavor> dishFlavorLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+            dishFlavorLambdaUpdateWrapper.eq(DishFlavor::getDishId,dishDto.getId());
+            List<DishFlavor> dishFlavors = dishFlavorService.list(dishFlavorLambdaUpdateWrapper);
+            dishDto.setFlavors(dishFlavors);
+            return dishDto;
+        }).collect(Collectors.toList());
+
+        return ResultVO.success("查询成功！", listDto);
     }
 
     /**

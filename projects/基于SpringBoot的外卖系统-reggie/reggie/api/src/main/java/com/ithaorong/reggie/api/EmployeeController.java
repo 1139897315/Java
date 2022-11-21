@@ -194,6 +194,9 @@ public class EmployeeController {
                 return ResultVO.error("出现异常！");
             }
 
+            //updateById只更新不为null的字段，前端默认有传password，将它设置为null
+            employee.setPassword(null);
+
             employee.setUpdateUser(empId);
             //修改时间
             employee.setUpdateTime(LocalDateTime.now());
@@ -213,6 +216,7 @@ public class EmployeeController {
     @PutMapping("/updatePassword")
     @ApiImplicitParam(dataType = "Employee",name = "employee", value = "员工密码修改接口",required = true)
     public ResultVO updatePassword(@RequestHeader String token, @RequestBody Employee employee){
+        System.out.println("employee==========="+employee);
         synchronized (this) {
             //修改人
             Long empId;

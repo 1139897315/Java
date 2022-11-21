@@ -2,10 +2,8 @@ package com.ithaorong.reggie.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ithaorong.reggie.entity.AddressBook;
-import com.ithaorong.reggie.entity.Employee;
 import com.ithaorong.reggie.service.AddressBookService;
 import com.ithaorong.reggie.vo.ResultVO;
 import io.swagger.annotations.Api;
@@ -35,7 +33,7 @@ public class AddressBookController {
         synchronized (this){
             addressBook.setId(0L);
             addressBook.setIsDefault(0);
-            addressBook.setIsDeleted(1);
+            addressBook.setIsDeleted(0);
 
             addressBook.setCreateTime(LocalDateTime.now());
             addressBook.setUpdateTime(LocalDateTime.now());
@@ -48,9 +46,11 @@ public class AddressBookController {
     @DeleteMapping("/delete")
     public ResultVO delete(@RequestParam("id") Long id){
         synchronized (this){
-            LambdaUpdateWrapper<AddressBook> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(AddressBook::getId,id);
-            updateWrapper.set(AddressBook::getIsDeleted,1);
+            AddressBook addressBook = new AddressBook();
+            addressBook.setId(id);
+            addressBook.setIsDeleted(1);
+            addressBook.setUpdateTime(LocalDateTime.now());
+            addressBookService.updateById(addressBook);
             return ResultVO.success("删除成功！");
         }
     }
@@ -94,14 +94,10 @@ public class AddressBookController {
     @GetMapping("/listByUserId")
     public ResultVO getAddressByUserId(Long userId){
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(AddressBook::getId,userId);
+        queryWrapper.eq(AddressBook::getUserId,userId);
         queryWrapper.eq(AddressBook::getIsDeleted,0);
         List<AddressBook> list = addressBookService.list(queryWrapper);
-
         return ResultVO.success("查询成功！",list);
     }
-
-
-
 
 }

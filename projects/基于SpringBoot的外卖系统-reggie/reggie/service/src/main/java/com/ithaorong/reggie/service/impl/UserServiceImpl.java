@@ -75,7 +75,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     //注册
                     return this.register(user);
                 }else {
-                    //登录
+                    //登录：从数据库获取user数据
+                    LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                    userLambdaQueryWrapper.eq(User::getOpenId,user.getOpenId());
+                    user = this.getOne(userLambdaQueryWrapper);
+
                     return this.login(user);
                 }
             }

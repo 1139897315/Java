@@ -1,2 +1,6 @@
-D:\IDEA_workplace\projects\reggie\common\src\main\java\com\ithaorong\reggie\config\SwaggerConfig.java
-D:\IDEA_workplace\projects\reggie\common\src\main\java\com\ithaorong\reggie\vo\ResultVO.java
+D:\IDEA_workplace\projects\基于SpringBoot的外卖系统-reggie\reggie\common\src\main\java\com\ithaorong\reggie\config\MybatisPlusConfig.java
+D:\IDEA_workplace\projects\基于SpringBoot的外卖系统-reggie\reggie\common\src\main\java\com\ithaorong\reggie\config\RedisKey.java
+D:\IDEA_workplace\projects\基于SpringBoot的外卖系统-reggie\reggie\common\src\main\java\com\ithaorong\reggie\vo\ResultVO.java
+D:\IDEA_workplace\projects\基于SpringBoot的外卖系统-reggie\reggie\common\src\main\java\com\ithaorong\reggie\config\SwaggerConfig.java
+D:\IDEA_workplace\projects\基于SpringBoot的外卖系统-reggie\reggie\common\src\main\java\com\ithaorong\reggie\config\WXAuth.java
+D:\IDEA_workplace\projects\基于SpringBoot的外卖系统-reggie\reggie\common\src\main\java\com\ithaorong\reggie\config\MD5Utils.java

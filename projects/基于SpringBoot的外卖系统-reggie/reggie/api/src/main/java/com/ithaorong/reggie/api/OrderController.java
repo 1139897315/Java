@@ -4,11 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ithaorong.reggie.dto.DishDto;
 import com.ithaorong.reggie.dto.OrderDto;
-import com.ithaorong.reggie.entity.Order;
-import com.ithaorong.reggie.entity.OrderDetail;
-import com.ithaorong.reggie.entity.ShoppingCart;
-import com.ithaorong.reggie.entity.User;
+import com.ithaorong.reggie.entity.*;
 import com.ithaorong.reggie.service.OrderDetailService;
 import com.ithaorong.reggie.service.OrderService;
 import com.ithaorong.reggie.service.ShoppingCartService;
@@ -24,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -146,21 +145,21 @@ public class OrderController {
         List<Order> orderList = orderService.list(orderLambdaQueryWrapper);
 
         //复制每个order信息
-        List<OrderDto> list = new ArrayList<>();
-        BeanUtils.copyProperties(orderList,list);
 
-        //获取每个order的orderDetail信息
-        for (OrderDto orderDto : list) {
+        List<OrderDto> listDto = orderList.stream().map((item) -> {
+            OrderDto orderDto = new OrderDto();
+            BeanUtils.copyProperties(item,orderDto);
 
-            LambdaQueryWrapper<OrderDetail> orderDetailLambdaQueryWrapper = new LambdaQueryWrapper<>();
-            orderDetailLambdaQueryWrapper.eq(OrderDetail::getOrderId,orderDto.getOrderId());
-            List<OrderDetail> orderDetailList = orderDetailService.list(orderDetailLambdaQueryWrapper);
-
+            //获取每个order的orderDetail信息
+            LambdaQueryWrapper<OrderDetail> orderDtoLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            orderDtoLambdaQueryWrapper.eq(OrderDetail::getOrderId,orderDto.getOrderId());
+            List<OrderDetail> orderDetailList = orderDetailService.list(orderDtoLambdaQueryWrapper);
             //给OrderDetail赋值
             orderDto.setOrderDetails(orderDetailList);
-        }
+            return orderDto;
+        }).collect(Collectors.toList());
 
-        return ResultVO.success("查询成功！",list);
+        return ResultVO.success("查询成功！",listDto);
     }
 
     /**
@@ -203,14 +202,14 @@ public class OrderController {
 
     @PutMapping("/cancelOrder")
     @Transactional
-    public ResultVO cancelOrder(@RequestHeader String token, @RequestParam("orderId") String orderId){
+    public ResultVO cancelOrder(@RequestHeader String token, @RequestBody Order order){
         synchronized (this){
             //  1.修改当前订单：status=5 已关闭
-            Order order = new Order();
-            order.setOrderId(orderId);
-            orderService.updateOrderStatus(token,order);
-
-            return ResultVO.success("关闭成功！");
+            ResultVO resultVO = orderService.updateOrderStatus(token, order);
+            if (resultVO.getCode() == 1)
+                return ResultVO.success("关闭成功！");
+            else
+                return ResultVO.error("关闭失败！");
         }
     }
 }
