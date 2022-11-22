@@ -30,9 +30,15 @@ public class AddressBookController {
 
     @PostMapping("/save")
     public ResultVO save(@RequestBody AddressBook addressBook){
-        synchronized (this){
+
+        LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AddressBook::getUserId,addressBook.getUserId())
+                    .eq(AddressBook::getIsDeleted,0);
+        List<AddressBook> list = addressBookService.list(queryWrapper);
+
+        if (list == null){
             addressBook.setId(0L);
-            addressBook.setIsDefault(0);
+            addressBook.setIsDefault(1);
             addressBook.setIsDeleted(0);
 
             addressBook.setCreateTime(LocalDateTime.now());
@@ -40,6 +46,18 @@ public class AddressBookController {
 
             addressBookService.save(addressBook);
             return ResultVO.success("保存成功！");
+        }else {
+            synchronized (this) {
+                addressBook.setId(0L);
+                addressBook.setIsDefault(0);
+                addressBook.setIsDeleted(0);
+
+                addressBook.setCreateTime(LocalDateTime.now());
+                addressBook.setUpdateTime(LocalDateTime.now());
+
+                addressBookService.save(addressBook);
+                return ResultVO.success("保存成功！");
+            }
         }
     }
 
@@ -72,12 +90,20 @@ public class AddressBookController {
     public ResultVO updateIsDefault(@RequestBody AddressBook addressBook){
         synchronized (this){
             LambdaUpdateWrapper<AddressBook> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(AddressBook::getId,addressBook.getId());
-            updateWrapper.set(AddressBook::getIsDefault,addressBook.getIsDefault());
-            updateWrapper.set(AddressBook::getUpdateTime,LocalDateTime.now());
-            addressBookService.update(updateWrapper);
+            updateWrapper.eq(AddressBook::getIsDefault,1)
+                    .eq(AddressBook::getUserId,addressBook.getUserId())
+                    .set(AddressBook::getIsDefault,0);
+            boolean is_OK = addressBookService.update(updateWrapper);
+            if (is_OK){
+                LambdaUpdateWrapper<AddressBook> updateWrapper_1 = new LambdaUpdateWrapper<>();
+                updateWrapper_1.eq(AddressBook::getId,addressBook.getId());
+                updateWrapper.set(AddressBook::getIsDefault,1);
+                updateWrapper.set(AddressBook::getUpdateTime,LocalDateTime.now());
+                addressBookService.update(updateWrapper);
+                return ResultVO.success("修改成功！");
+            }else
+                return ResultVO.error("修改出错！");
 
-            return ResultVO.success("修改成功！");
         }
     }
 

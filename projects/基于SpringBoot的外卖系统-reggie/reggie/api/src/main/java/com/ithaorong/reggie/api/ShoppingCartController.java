@@ -38,18 +38,10 @@ public class ShoppingCartController {
     @PostMapping("/add")
     public ResultVO addShoppingCart(@RequestHeader String token, @RequestBody ShoppingCart cart) {
         synchronized (this){
-            Long userId;
-            try {
-                String s = stringRedisTemplate.boundValueOps(token).get();
-                userId = objectMapper.readValue(s, User.class).getId();
-            } catch (JsonProcessingException e) {
-                return ResultVO.error("出现异常！");
-            }
-
             cart.setId(0L);
             cart.setIsDeleted(0);
             cart.setCreateTime(LocalDateTime.now());
-            cart.setUserId(userId);
+            cart.setUserId(cart.getUserId());
 
             shoppingCartService.save(cart);
             return ResultVO.success("添加购物车成功！");
@@ -58,25 +50,27 @@ public class ShoppingCartController {
 
     @GetMapping("/listByUserId")
     @Transactional(propagation = Propagation.SUPPORTS)
-    public ResultVO listShoppingCartsByUserId(int userId) {
+    public ResultVO listShoppingCartsByUserId(Long userId) {
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ShoppingCart::getId,userId)
-                    .eq(ShoppingCart::getIsDeleted,0);
+        queryWrapper.eq(ShoppingCart::getUserId,userId)
+                    .eq(ShoppingCart::getIsDeleted,0)
+                    .gt(ShoppingCart::getNumber,0);
 
         List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
+        System.out.println("System.currentTimeMillis()================================="+ System.currentTimeMillis());
         return ResultVO.success("查询成功！",list);
     }
 
     /**
      * 修改购物车数量接口
-     * @param shoppingCart.cartId
-     * @param shoppingCart.cartNumber
      * @return
      */
     @PutMapping("/updateNum")
     public ResultVO updateCartNum(@RequestBody ShoppingCart shoppingCart) {
         synchronized (this){
             //条件
+            System.out.println(shoppingCart.getId());
+            System.out.println(shoppingCart.getNumber());
             LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.eq(ShoppingCart::getId,shoppingCart.getId());
             updateWrapper.set(ShoppingCart::getNumber,shoppingCart.getNumber());
@@ -88,15 +82,24 @@ public class ShoppingCartController {
 
     /**
      * 如果数量小于或等于0，则删除该购物车商品
-     * @param cartId
      * @return
      */
     @DeleteMapping("/delete")
-    public ResultVO delete(Long cartId){
+    public ResultVO delete(@RequestParam("ids") List<Long> ids){
         synchronized (this){
-            LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(ShoppingCart::getId,cartId);
-            updateWrapper.set(ShoppingCart::getIsDeleted,1);
+            //查看套餐状态，确定是否可以删除
+            LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.in(ShoppingCart::getId,ids);
+            queryWrapper.le(ShoppingCart::getNumber,0);
+
+            int count = shoppingCartService.count(queryWrapper);
+            if (count > 0){
+                //如果不能删除，返回失败
+                return ResultVO.error("存在商品数量小于或等于0");
+            }
+            //如果可以删除，先删除套餐表中数据
+            shoppingCartService.removeByIds(ids);
+
             return ResultVO.success("删除成功！");
         }
     }

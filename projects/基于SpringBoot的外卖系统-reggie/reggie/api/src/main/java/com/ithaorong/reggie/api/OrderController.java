@@ -1,12 +1,16 @@
 package com.ithaorong.reggie.api;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.wxpay.sdk.WXPayUtil;
 import com.ithaorong.reggie.dto.DishDto;
 import com.ithaorong.reggie.dto.OrderDto;
 import com.ithaorong.reggie.entity.*;
+import com.ithaorong.reggie.service.AddressBookService;
 import com.ithaorong.reggie.service.OrderDetailService;
 import com.ithaorong.reggie.service.OrderService;
 import com.ithaorong.reggie.service.ShoppingCartService;
@@ -17,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -40,50 +45,56 @@ public class OrderController {
     private OrderService orderService;
     @Resource
     private OrderDetailService orderDetailService;
-
-
+    @Resource
+    private AddressBookService addressBookService;
 
     /**
      * 支付：payMethod（1微信 0支付宝）、amount（实际金额）
      * 备注：remark(非必填)
+     * 店名：storeName
      * 地址的各个属性：phone、userName、address、consignee（收货人）
      */
     @PostMapping("/save")
     @Transactional
     public ResultVO save(@RequestHeader String token, @RequestBody Order order){
+        if (order == null)
+            return ResultVO.error("订单支付数据不能为空,请检查参数再试");
         synchronized (this){
-
             Map<String,String> map = new HashMap<>();
 
-            Long userId;
+            String openId;
             try {
                 String s = stringRedisTemplate.boundValueOps(token).get();
-                userId = objectMapper.readValue(s, User.class).getId();
+                openId = objectMapper.readValue(s, User.class).getOpenId();
             } catch (JsonProcessingException e) {
                 return ResultVO.error("出现异常！");
             }
             //2.保存订单
             order.setId(0L);
-            order.setUserId(userId);
-            order.setUpdateUser(userId);
+            order.setUserId(order.getUserId());
+            order.setUpdateUser(order.getUserId());
+            order.setOpenId(openId);
             order.setCheckoutTime(null);
             order.setUpdateTime(LocalDateTime.now());
             order.setCreateTime(LocalDateTime.now());
             order.setStatus(1);
 
+
             //生成订单编号
-            String orderId = UUID.randomUUID().toString().replace("-", "");
+            String orderId = order.getUserId() + DateUtil.format(new Date(),"yyyyMMddHHmm")+ RandomUtil.randomNumbers(4);
             order.setOrderId(orderId);
 
             //2.生成地址快照 -- 前端给
-            orderService.save(order);
 
             //3.生成商品快照
             LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(ShoppingCart::getUserId,userId);
+            queryWrapper.eq(ShoppingCart::getUserId,order.getUserId());
             List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
 
+
+            StringBuilder untitled = new StringBuilder();
             for (ShoppingCart sc: list) {
+                untitled.append(sc.getName()).append(",");
 
                 OrderDetail orderDetail = new OrderDetail();
                 BeanUtils.copyProperties(sc,orderDetail);
@@ -94,56 +105,38 @@ public class OrderController {
                 orderDetailService.save(orderDetail);
             }
 
+            order.setUntitled(String.valueOf(untitled));
+            orderService.save(order);
+
             //5.删除购物车：当购物车中的记录购买成功之后，购物车中对应做删除操作
             LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(ShoppingCart::getUserId,userId)
+            updateWrapper.eq(ShoppingCart::getUserId,order.getUserId())
                             .set(ShoppingCart::getIsDeleted,1);
             boolean is_remove = shoppingCartService.update(updateWrapper);
+            //6.增加销量
 
-            //发送支付请求
-            if (is_remove){
-//                String orderId = orderInfo.get("orderId");
-//                //设置当前订单信息
-//                HashMap<String,String> data = new HashMap<>();
-//                data.put("body",orderInfo.get("productNames"));  //商品描述
-//                data.put("out_trade_no",orderId);               //使用当前用户订单的编号作为当前支付交易的交易号
-//                data.put("fee_type","CNY");                     //支付币种
-//                data.put("total_fee",order.getActualAmount()*100+"");          //支付金额
-//                data.put("total_fee","1");
-//                data.put("trade_type","NATIVE");                //交易类型
-//                data.put("notify_url","http://47.118.45.73:8080/pay/callback");           //设置支付完成时的回调方法接口
-//
-
-
-                //微信小程序支付：
-
-//                //发送请求，获取响应
-//                //微信支付：申请支付连接
-//                WXPay wxPay = new WXPay(new MyPayConfig());
-//                Map<String, String> resp = wxPay.unifiedOrder(data);
-//                orderInfo.put("payUrl",resp.get("code_url"));
+            if (is_remove)
                 return ResultVO.success("保存订单成功！");
-            }
             return ResultVO.error("保存订单失败！");
         }
     }
 
     /**
      * @param userId 用户id
-     * @param status 订单状态：1待付款，2待派送，3已派送，4已完成，5已取消
      * @return 订单列表
      */
-    @GetMapping("/list")
+    @GetMapping("/listByUserIdOrStatus")
     @ApiOperation("订单查询接口")
-    public ResultVO listByUserIdAndStatus(String userId, int status){
+    public ResultVO listByUserId(Long userId, Integer status){
         //获取order信息
         LambdaQueryWrapper<Order> orderLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        orderLambdaQueryWrapper.eq(Order::getUserId,userId);
-        if (status == 1 || status == 2 || status == 3 || status == 4) {
+        if (userId != 0 ) {
+            orderLambdaQueryWrapper.eq(Order::getUserId,userId);
+        }
+        if (status!=null && (status == 1 || status == 2 ||status == 3 ||status == 4 ||status == 5)) {
             orderLambdaQueryWrapper.eq(Order::getStatus,status);
         }
         List<Order> orderList = orderService.list(orderLambdaQueryWrapper);
-
         //复制每个order信息
 
         List<OrderDto> listDto = orderList.stream().map((item) -> {
@@ -158,7 +151,6 @@ public class OrderController {
             orderDto.setOrderDetails(orderDetailList);
             return orderDto;
         }).collect(Collectors.toList());
-
         return ResultVO.success("查询成功！",listDto);
     }
 
@@ -169,7 +161,7 @@ public class OrderController {
      */
     @PutMapping("/updateOrderStatus")
     public ResultVO updateOrderStatus(@RequestHeader String token, @RequestBody Order order){
-        return orderService.updateOrderStatus(token,order);
+        return orderService.updateOrderStatus(order.getUserId(),order.getOrderId(),order.getStatus());
     }
 
     /**
@@ -205,7 +197,7 @@ public class OrderController {
     public ResultVO cancelOrder(@RequestHeader String token, @RequestBody Order order){
         synchronized (this){
             //  1.修改当前订单：status=5 已关闭
-            ResultVO resultVO = orderService.updateOrderStatus(token, order);
+            ResultVO resultVO = orderService.updateOrderStatus(order.getUserId(),order.getOrderId(),order.getStatus());
             if (resultVO.getCode() == 1)
                 return ResultVO.success("关闭成功！");
             else

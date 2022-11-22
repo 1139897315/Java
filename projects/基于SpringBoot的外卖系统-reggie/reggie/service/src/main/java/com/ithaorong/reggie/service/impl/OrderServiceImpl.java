@@ -24,24 +24,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     private ObjectMapper objectMapper;
 
     @Override
-    public ResultVO updateOrderStatus(String token, Order order) {
+    public ResultVO updateOrderStatus(Long userId, String orderId,int status) {
         synchronized (this){
-            Long userId;
             try {
-                String s = stringRedisTemplate.boundValueOps(token).get();
-                userId = objectMapper.readValue(s, User.class).getId();
-            } catch (JsonProcessingException e) {
+                LambdaUpdateWrapper<Order> updateWrapper = new LambdaUpdateWrapper<>();
+                updateWrapper.eq(Order::getOrderId,orderId);
+                //订单状态、订单id、修改用户、修改时间
+                updateWrapper.set(Order::getStatus,status)
+                        .set(Order::getUpdateTime, LocalDateTime.now())
+                        .set(Order::getUpdateUser,userId);
+
+                this.update(updateWrapper);
+            }catch (Exception e){
                 return ResultVO.error("出现异常！");
             }
-
-            LambdaUpdateWrapper<Order> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(Order::getOrderId,order.getOrderId());
-            //订单状态、订单id、修改用户、修改时间
-            updateWrapper.set(Order::getStatus,order.getStatus())
-                    .set(Order::getUpdateTime, LocalDateTime.now())
-                    .set(Order::getUpdateUser,userId);
-
-            this.update(updateWrapper);
             return ResultVO.success("修改成功！");
         }
     }

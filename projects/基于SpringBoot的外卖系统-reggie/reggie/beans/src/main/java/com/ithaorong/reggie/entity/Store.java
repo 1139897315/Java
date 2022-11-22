@@ -17,6 +17,7 @@ public class Store implements Serializable {
     private String name;
     private int status;
     private int isDelete;
+    private String detailAddress;
     private int ranking;
     private Long dayCustomers;
     private Long monthCustomers;

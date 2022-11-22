@@ -1,6 +1,7 @@
 package com.ithaorong.reggie.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -25,9 +26,19 @@ public class Order implements Serializable {
 
     //订单状态 1待付款，2待派送，3已派送，4已完成，5已取消
     private Integer status;
-
     //下单用户id
     private Long userId;
+    //红包金额
+    @TableField("red_packet_money")
+    private Integer redPacketMoney;
+
+    //购买方式 1外卖 2堂食
+    private Integer buyType;
+
+    //店名
+    private String storeName;
+
+
 
     //修改用户id
     private Long updateUser;
@@ -36,16 +47,18 @@ public class Order implements Serializable {
     private LocalDateTime checkoutTime;
 
     //支付方式 1微信，2支付宝
+
     private Integer payMethod;
+
+    private String untitled;
+
+    private String openId;
 
     //实收金额
     private BigDecimal amount;
 
     //备注
     private String remark;
-
-    //用户名
-    private String userName;
 
     //手机号
     private String phone;

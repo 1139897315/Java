@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ithaorong.reggie.config.RedisKey;
 import com.ithaorong.reggie.config.WXAuth;
 import com.ithaorong.reggie.dao.UserMapper;
 import com.ithaorong.reggie.entity.User;
@@ -62,7 +61,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //通过wxAuth的值，进行解密
         try {
             UserInfo userInfo = wxService.wxDecrypt(wxAuth.getEncryptedData(), wxAuth.getSessionId(), wxAuth.getIv());
-            System.out.println("解密并封装=========userInfo"+userInfo);
             if (userInfo != null) {
                 String openId = userInfo.getOpenId();
                 LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();

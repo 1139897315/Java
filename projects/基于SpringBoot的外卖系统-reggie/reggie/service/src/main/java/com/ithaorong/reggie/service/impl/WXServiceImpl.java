@@ -66,7 +66,7 @@ public class WXServiceImpl implements WXService {
     public UserInfo wxDecrypt(String encryptedData, String sessionId, String vi) throws Exception{
         //开始解密 -- res（session_key。。。）
         String json = stringRedisTemplate.opsForValue().get(sessionId);
-//        JSONObject jsonObject = objectMapper.readValue(json, JSONObject.class);
+        //JSONObject jsonObject = objectMapper.readValue(json, JSONObject.class);
         JSONObject jsonObject = JSON.parseObject(json);
         String sessionKey = (String) jsonObject.get("session_key");
         byte[] encData = Base64.decode(encryptedData);
