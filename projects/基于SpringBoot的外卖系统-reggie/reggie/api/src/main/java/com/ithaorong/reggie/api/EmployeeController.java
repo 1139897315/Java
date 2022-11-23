@@ -60,7 +60,6 @@ public class EmployeeController {
         //判断员工状态是否可用
         if (!(emp.getStatus() == 1))
             return ResultVO.error("该账号禁用");
-        System.out.println("在这..");
         //生成token
         JwtBuilder builder = Jwts.builder();
         // HashMap<String,Object> map = new HashMap<>();

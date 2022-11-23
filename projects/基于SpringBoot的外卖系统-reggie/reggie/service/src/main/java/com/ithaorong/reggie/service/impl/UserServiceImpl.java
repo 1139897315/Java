@@ -19,6 +19,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
@@ -40,19 +41,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private WXService wxService;
 
     public ResultVO getSessionId(String code) {
-        //校验接口，获取返回结果（通过code去获取该用户信息）
+        //校验接口，获取返回结果（通过code去获取该用户唯一凭证信息）
         String url = "https://api.weixin.qq.com/sns/jscode2session?appid={0}&secret={1}&js_code={2}&grant_type=authorization_code";
         url = url.replace("{0}",appId).replace("{1}",secret).replace("{2}",code);
-        //session_key、openid
+
         String res = HttpUtil.get(url);
-
-
         String uuid = UUID.randomUUID().toString().replace("-", "");
         stringRedisTemplate.opsForValue().set(uuid,res,30, TimeUnit.MINUTES);
 
         HashMap<String, String> map = new HashMap<>();
         map.put("sessionId",uuid);
-
         return ResultVO.success("获取SessionId成功！",map);
     }
 
@@ -64,21 +62,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (userInfo != null) {
                 String openId = userInfo.getOpenId();
                 LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-                User user_exist = userMapper.selectOne(queryWrapper.eq(User::getOpenId, openId).last("limit 1"));
+                User userExist = userMapper.selectOne(queryWrapper.eq(User::getOpenId, openId).last("limit 1"));
 
+                //解析用户信息并拷贝到user对象
                 User user = new User();
                 user.from(userInfo);
+                user.setCreateTime(LocalDateTime.now());
+                user.setUpdateTime(LocalDateTime.now());
 
-                if (user_exist == null){
+                if (userExist == null){
                     //注册
-                    return this.register(user);
+                    synchronized (this){
+                        //如何数据存储在数据库和redis保持事务性
+                        userMapper.insert(user);
+                        return this.generateToken(user);
+                    }
                 }else {
                     //登录：从数据库获取user数据
                     LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
                     userLambdaQueryWrapper.eq(User::getOpenId,user.getOpenId());
                     user = this.getOne(userLambdaQueryWrapper);
 
-                    return this.login(user);
+                    return this.generateToken(user);
                 }
             }
         } catch (Exception e) {
@@ -87,21 +92,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return ResultVO.error("验证失败！");
     }
 
-    //登录
-    private ResultVO login(User user) {
-        return this.setToken(user);
-    }
 
-    //注册
-    private ResultVO register(User user) {
-        synchronized (this){
-            //如何数据存储在数据库和redis保持事务性
-            this.userMapper.insert(user);
-            return this.setToken(user);
-        }
-    }
-
-    private ResultVO setToken(User user){
+    private ResultVO generateToken(User user){
         //生成Token
         String token = Jwts.builder()                                //主题，就是token中携带的数据
                 .setIssuedAt(new Date())                            //设置token的生成时间

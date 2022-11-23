@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @CrossOrigin
@@ -38,12 +39,29 @@ public class ShoppingCartController {
     @PostMapping("/add")
     public ResultVO addShoppingCart(@RequestHeader String token, @RequestBody ShoppingCart cart) {
         synchronized (this){
-            cart.setId(0L);
-            cart.setIsDeleted(0);
-            cart.setCreateTime(LocalDateTime.now());
-            cart.setUserId(cart.getUserId());
-
-            shoppingCartService.save(cart);
+            LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ShoppingCart::getUserId,cart.getUserId())
+                        .eq(ShoppingCart::getIsDeleted,0);
+            List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
+            if (list != null){
+                boolean change = false;
+                for (ShoppingCart s : list) {
+                    if (cart.getName().equals(s.getName()) && cart.getDishFlavor().equals(s.getDishFlavor())){
+                        LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
+                        updateWrapper.eq(ShoppingCart::getId,s.getId());
+                        updateWrapper.set(ShoppingCart::getNumber,s.getNumber()+1);
+                        shoppingCartService.update(updateWrapper);
+                        change = true;
+                    }
+                }
+                if (!change){
+                    cart.setId(0L);
+                    cart.setIsDeleted(0);
+                    cart.setCreateTime(LocalDateTime.now());
+                    cart.setUserId(cart.getUserId());
+                    shoppingCartService.save(cart);
+                }
+            }
             return ResultVO.success("添加购物车成功！");
         }
     }
@@ -55,10 +73,15 @@ public class ShoppingCartController {
         queryWrapper.eq(ShoppingCart::getUserId,userId)
                     .eq(ShoppingCart::getIsDeleted,0)
                     .gt(ShoppingCart::getNumber,0);
-
         List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
-        System.out.println("System.currentTimeMillis()================================="+ System.currentTimeMillis());
-        return ResultVO.success("查询成功！",list);
+        int allNum = 0;
+        for (ShoppingCart shoppingCart: list){
+            allNum += shoppingCart.getNumber();
+        }
+        HashMap<String ,Object> map = new HashMap<>();
+        map.put("list",list);
+        map.put("allNum",allNum);
+        return ResultVO.success("查询成功！",map);
     }
 
     /**
@@ -69,8 +92,6 @@ public class ShoppingCartController {
     public ResultVO updateCartNum(@RequestBody ShoppingCart shoppingCart) {
         synchronized (this){
             //条件
-            System.out.println(shoppingCart.getId());
-            System.out.println(shoppingCart.getNumber());
             LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.eq(ShoppingCart::getId,shoppingCart.getId());
             updateWrapper.set(ShoppingCart::getNumber,shoppingCart.getNumber());

@@ -2,13 +2,17 @@ package com.ithaorong.reggie.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.io.Serializable;
 import java.util.HashMap;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * 用户信息
@@ -52,16 +56,12 @@ public class User implements Serializable {
     private int points;
 
     private int age;
-
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
 
     private double height;
 
     private String star;
-
-    private String country;
-
-    private String province;
 
     private String city;
 
@@ -73,20 +73,20 @@ public class User implements Serializable {
 
     private String hobbies;
 
-    private String emo;
-
     private String expections;
 
-    //状态 0:禁用，1:正常
+    //状态 0:正常，1:禁用
     private int status;
+
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 
     public void from(UserInfo userInfo){
         openId = userInfo.getOpenId();
         nickName = userInfo.getNickName();
         gender = Integer.parseInt(userInfo.getGender());
         city = userInfo.getCity();
-        province = userInfo.getProvince();
-        country = userInfo.getCountry();
         avatarUrl = userInfo.getAvatarUrl();
         unionId = userInfo.getUnionId();
     }

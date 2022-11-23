@@ -8,4 +8,6 @@ import java.util.List;
 public class UserDto extends User {
     private List<RedPacketDto> redPackets;
 
+
+
 }

@@ -60,7 +60,8 @@ public class FileController {
         }
 
         try {
-            file.transferTo(new File(basePath+fileName));
+            System.out.println("fileName============"+basePath+'/'+fileName);
+            file.transferTo(new File(basePath+'/'+fileName));
         } catch (IOException e) {
             return ResultVO.error("出现异常，文件上传失败");
         }

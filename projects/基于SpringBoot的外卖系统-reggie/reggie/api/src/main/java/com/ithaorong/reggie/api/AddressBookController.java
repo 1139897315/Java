@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -85,7 +86,7 @@ public class AddressBookController {
         }
     }
 
-    //修改默认(参数：id和isDefault)
+    //修改默认(参数：id和isDefault、userId)
     @PutMapping("/updateIsDefault")
     public ResultVO updateIsDefault(@RequestBody AddressBook addressBook){
         synchronized (this){
@@ -97,9 +98,9 @@ public class AddressBookController {
             if (is_OK){
                 LambdaUpdateWrapper<AddressBook> updateWrapper_1 = new LambdaUpdateWrapper<>();
                 updateWrapper_1.eq(AddressBook::getId,addressBook.getId());
-                updateWrapper.set(AddressBook::getIsDefault,1);
-                updateWrapper.set(AddressBook::getUpdateTime,LocalDateTime.now());
-                addressBookService.update(updateWrapper);
+                updateWrapper_1.set(AddressBook::getIsDefault,1);
+                updateWrapper_1.set(AddressBook::getUpdateTime,LocalDateTime.now());
+                addressBookService.update(updateWrapper_1);
                 return ResultVO.success("修改成功！");
             }else
                 return ResultVO.error("修改出错！");
@@ -123,6 +124,7 @@ public class AddressBookController {
         queryWrapper.eq(AddressBook::getUserId,userId);
         queryWrapper.eq(AddressBook::getIsDeleted,0);
         List<AddressBook> list = addressBookService.list(queryWrapper);
+
         return ResultVO.success("查询成功！",list);
     }
 

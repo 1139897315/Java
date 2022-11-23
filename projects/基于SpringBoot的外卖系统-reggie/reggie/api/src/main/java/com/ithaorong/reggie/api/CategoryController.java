@@ -226,7 +226,6 @@ public class CategoryController {
             //根据分类查找菜品
             return categoryDto;
         }).collect(Collectors.toList());
-        System.out.println("listDto===================="+listDto);
         return ResultVO.success("查询成功！", listDto);
     }
 }
