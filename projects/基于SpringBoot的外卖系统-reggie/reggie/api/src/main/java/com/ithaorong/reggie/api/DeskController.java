@@ -30,6 +30,7 @@ public class DeskController {
     public ResultVO save(@RequestBody Desk desk){
         synchronized (this){
             desk.setId(0L);
+            desk.setStatus(0);
             deskService.save(desk);
             return ResultVO.success("添加成功！");
         }

@@ -13,4 +13,5 @@ public class Desk implements Serializable {
     private Long id;
     private String name;
     private Long storeId;
+    private int status;
 }

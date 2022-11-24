@@ -64,7 +64,9 @@ public class OrderController {
 
             String openId;
             try {
+                System.out.println("token=========="+token);
                 String s = stringRedisTemplate.boundValueOps(token).get();
+                System.out.println("s========="+s);
                 openId = objectMapper.readValue(s, User.class).getOpenId();
             } catch (JsonProcessingException e) {
                 return ResultVO.error("出现异常！");
@@ -116,7 +118,7 @@ public class OrderController {
             //6.增加销量
 
             if (is_remove)
-                return ResultVO.success("保存订单成功！");
+                return ResultVO.success("保存订单成功！",orderId);
             return ResultVO.error("保存订单失败！");
         }
     }

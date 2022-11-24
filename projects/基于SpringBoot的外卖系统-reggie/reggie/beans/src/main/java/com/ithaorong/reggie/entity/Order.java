@@ -29,16 +29,17 @@ public class Order implements Serializable {
     //下单用户id
     private Long userId;
     //红包金额
-    @TableField("red_packet_money")
-    private Integer redPacketMoney;
+
+    private Integer reduceMoney;
 
     //购买方式 1外卖 2堂食
     private Integer buyType;
 
+    //性别
+    private int sex;
+
     //店名
     private String storeName;
-
-
 
     //修改用户id
     private Long updateUser;

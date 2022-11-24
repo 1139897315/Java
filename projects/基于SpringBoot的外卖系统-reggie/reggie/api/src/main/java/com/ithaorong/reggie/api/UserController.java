@@ -3,6 +3,7 @@ package com.ithaorong.reggie.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ithaorong.reggie.config.WXAuth;
 import com.ithaorong.reggie.entity.Employee;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @CrossOrigin
 @RestController
@@ -95,6 +97,15 @@ public class UserController {
             return ResultVO.error("保存失败！");
         }
     }
+
+    @PostMapping("/loginOut")
+    public ResultVO loginOut(@RequestHeader String token){
+        synchronized (this){
+            stringRedisTemplate.delete(token);
+            return ResultVO.success("退出成功！");
+        }
+    }
+
 
 //
 }

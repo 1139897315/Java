@@ -7,22 +7,20 @@ import org.apache.http.client.HttpClient;
  */
 public class WXPayConstants {
 
-    /*
-        自定义内容     */
+    /*自定义内容*/
     /*支付*/
     public static final String APP_ID = "wx183821d67d234031";//appid  填写你们自己的
-    public static final String MCH_ID = "";//商家ID   填写你们自己的
-//    public static final String SECRET = "e74ff167d287ba25aefc87d9afe5fcf5";//APP KEY
+    public static final String MCH_ID = "1635180453";//商家ID   填写你们自己的
     public static final String SECRET = "c9b80ffdacb2f6bdbfc08b1b1ffdfe22";//APP KEY
     public static final String OPENID_URL = "https://api.weixin.qq.com/sns/oauth2/access_token";
 
     public static final String NOTIFY_URL = "";//回调ip
     public static final String UNIFIEDORDER_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder";//统一下单接口
-    public static final String CALLBACK_URL = "https://8.135.97.238/wxPay/callBack";//微信服务器调用支付结果通知路径
-    public static final String PATERNER_KEY = "";//商户key秘钥   填写你们自己的
+    public static final String CALLBACK_URL = "https://127.0.0.1/wxPay/callBack";//微信服务器调用支付结果通知路径
+    public static final String PATERNER_KEY = "23314596426975798616397745800395";//商户key秘钥   填写你们自己的
     /*退款*/
     public static final String REFUND_URL = "https://api.mch.weixin.qq.com/secapi/pay/refund";//申请退款路径接口
-    public static final String notify_url = "https://8.135.97.238/wxPay/notifyUrl";//微信服务器调用退款结果通知路径
+    public static final String notify_url = "https://127.0.0.1/wxPay/notifyUrl";//微信服务器调用退款结果通知路径
 
     public enum SignType {
         MD5, HMACSHA256

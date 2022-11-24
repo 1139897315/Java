@@ -37,7 +37,7 @@ public class AddressBookController {
                     .eq(AddressBook::getIsDeleted,0);
         List<AddressBook> list = addressBookService.list(queryWrapper);
 
-        if (list == null){
+        if (list.size() == 0){
             addressBook.setId(0L);
             addressBook.setIsDefault(1);
             addressBook.setIsDeleted(0);
