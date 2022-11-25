@@ -1,6 +1,7 @@
 package com.ithaorong.reggie.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.github.wxpay.sdk.WXPayUtil;
 import com.ithaorong.reggie.entity.Order;
 import com.ithaorong.reggie.service.OrderService;
@@ -10,6 +11,7 @@ import com.ithaorong.reggie.vo.ResultVO;
 import com.sun.org.apache.xpath.internal.operations.Or;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -22,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,9 +73,6 @@ public class WXPayController {
 //       Integer price = 1;//支付金额，单位：分，这边需要转成字符串类型，否则后面的签名会失败
             double price = amount.doubleValue() * 100;
             String str_price = String.valueOf(price);
-            System.out.println("price========================"+price);
-            System.out.println("str_price========================"+str_price);
-            System.out.println("body= "+body);
 //       body = new String(body.getBytes("ISO-8859-1"),"UTF-8").toString();
 //       System.out.println("body= "+body);
             // 封装11个必需的参数
@@ -105,7 +105,7 @@ public class WXPayController {
             //以下内容是返回前端页面的json数据
             //预支付id
             String prepay_id = "";
-            if (xmlStr.indexOf("SUCCESS") != -1) {
+            if (xmlStr.contains("SUCCESS")) {
                 Map<String, String> map = WXPayUtil.xmlToMap(xmlStr);//XML格式字符串转换为Map
                 prepay_id =  map.get("prepay_id").toString();
             }
@@ -156,13 +156,19 @@ public class WXPayController {
             LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(Order::getOrderId,orderId);
             Order order = orderService.getOne(queryWrapper);
-            ResultVO resultVO = orderService.updateOrderStatus(order.getUserId(), orderId, 4);
+            //修改状态
+            ResultVO resultVO = orderService.updateOrder(order.getUserId(), orderId, 4);
+            //修改支付时间
+            LambdaUpdateWrapper<Order> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(Order::getOrderId,orderId)
+                        .set(Order::getCheckoutTime, LocalDateTime.now());
+            boolean update = orderService.update(updateWrapper);
 
             //3.通过websocket连接，向前端推送消息
             //WebSocketServer.sendMsg(orderId,"1");
 
             //4.响应微信支付平台
-            if(resultVO.getCode() == 1){
+            if(update){
                 HashMap<String,String> resp = new HashMap<>();
                 resp.put("return_code","success");
                 resp.put("return_msg","OK");
@@ -176,9 +182,9 @@ public class WXPayController {
 
 
 //    /*调用退款接口，取消订单*/
-    @RequestMapping("refund")
+    @RequestMapping("/refund")
     @ResponseBody
-    public Map<String, Object> refund(Long id, HttpServletResponse response){
+    public ResultVO refund(Long id, HttpServletResponse response){
 
         // 返回参数
         Map<String, Object> resMap = new HashMap<>();
@@ -186,25 +192,23 @@ public class WXPayController {
         String resXml = "";
         try {
             // 拼接统一下单地址参数
-            Map<String, Object> paraMap = new HashMap<>();
-            orderService.getById(id);
-
-
-            
-            String orderNum = order.getOrdernum();//订单号
-            String money = order.getMoney();//金额
-            Integer price = Integer.valueOf(money);
+            Map<String, String> paraMap = new HashMap<>();
+            Order order = orderService.getById(id);
+            String orderId = order.getOrderId();//订单号
+            double price = order.getAmount().doubleValue() * 100;
+            String str_price = String.valueOf(price);
+            System.out.println("str_price============"+str_price);
 //       Integer price = 1;//支付金额，单位：分，这边需要转成字符串类型，否则后面的签名会失败
-            System.out.println("订单号= "+orderNum);
+            System.out.println("订单号= "+orderId);
             // 封装必需的参数
             paraMap.put("appid", WXPayConstants.APP_ID);
             paraMap.put("mch_id", WXPayConstants.MCH_ID);//商家ID
             paraMap.put("nonce_str", WXPayUtil.generateNonceStr());//获取随机字符串 Nonce Str
-            paraMap.put("out_trade_no", orderNum);//订单号
-            paraMap.put("out_refund_no", orderNum);//商户退款单号
-            paraMap.put("total_fee",price);    //测试改为固定金额  订单金额
+            paraMap.put("out_trade_no", orderId);//订单号
+            paraMap.put("out_refund_no", orderId);//商户退款单号
+            paraMap.put("total_fee",str_price);    //测试改为固定金额  订单金额
             paraMap.put("refund_fee","1");    //退款金额
-//       paraMap.put("notify_url", WXPayConstants.notify_url);   //退款路径
+            paraMap.put("notify_url", WXPayConstants.notify_url);   //退款路径
             String sign = WXPayUtil.generateSignature(paraMap, WXPayConstants.PATERNER_KEY);//商户密码
             //生成签名. 注意，若含有sign_type字段，必须和signType参数保持一致。
             paraMap.put("sign", sign);
@@ -212,22 +216,19 @@ public class WXPayController {
             String xml = WXPayUtil.mapToXml(paraMap);
             // 退款 https://api.mch.weixin.qq.com/secapi/pay/refund
             String refund_url = WXPayConstants.REFUND_URL;//申请退款路径接口
-            System.out.println("refund_url:"+refund_url);
             //发送post请求"申请退款"
             String xmlStr = HttpClientUtil.doRefund(refund_url, xml);
             System.out.println("退款xmlStr:"+xmlStr);
             /*退款成功回调修改订单状态*/
             if (xmlStr.indexOf("SUCCESS") != -1) {
-                Map<String, Object> map = WXPayUtil.xmlToMap(xmlStr);//XML格式字符串转换为Map
+                Map<String, String> map = WXPayUtil.xmlToMap(xmlStr);//XML格式字符串转换为Map
                 if(map.get("return_code").equals("SUCCESS")){
                     resMap.put("success",true);//此步说明退款成功
                     resMap.put("data","退款成功");
                     System.out.println("退款成功");
-                    Date refundtime = new Date();
-                    Integer ordertype = -1;//-1取消订单
-                    String complete = "已取消";
+
                     try {
-                        orderMapper.updateRefundByOrdersNum(orderNum,ordertype,refundtime,complete);
+                        orderService.updateOrder(order.getUserId(),orderId,-1);
                         //告诉微信服务器收到信息了，不要在调用回调action了========这里很重要回复微信服务器信息用流发送一个xml即可
                         resXml = "<xml>" + "<return_code><![CDATA[SUCCESS]]></return_code>"
                                 + "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
@@ -248,6 +249,6 @@ public class WXPayController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return resMap;
+        return ResultVO.success("退款成功！",resMap);
     }
 }

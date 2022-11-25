@@ -23,15 +23,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Resource
     private ObjectMapper objectMapper;
 
-    @Override
-    public ResultVO updateOrderStatus(Long userId, String orderId,int status) {
+    public ResultVO updateOrder(Long userId, String orderId,int status) {
         synchronized (this){
             try {
                 LambdaUpdateWrapper<Order> updateWrapper = new LambdaUpdateWrapper<>();
                 updateWrapper.eq(Order::getOrderId,orderId);
                 //订单状态、订单id、修改用户、修改时间
-                updateWrapper.set(Order::getStatus,status)
-                        .set(Order::getUpdateTime, LocalDateTime.now())
+                if (status != 0)
+                    updateWrapper.set(Order::getStatus,status);
+
+                updateWrapper.set(Order::getUpdateTime, LocalDateTime.now())
                         .set(Order::getUpdateUser,userId);
 
                 this.update(updateWrapper);
@@ -41,4 +42,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             return ResultVO.success("修改成功！");
         }
     }
+
+//    @Override
+//    public ResultVO updateOrder(Order order) {
+//        synchronized (this){
+//            this.updateById(order);
+//        }
+//        return null;
+//    }
 }

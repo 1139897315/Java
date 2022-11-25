@@ -75,4 +75,6 @@ public class Order implements Serializable {
 
     //修改时间
     private LocalDateTime updateTime;
+
+    private LocalDateTime refundTime;
 }

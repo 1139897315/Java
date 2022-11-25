@@ -108,7 +108,7 @@ public class FileController {
             response.setContentType("image/jpeg");
 
             int len = 0;
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[2048];
             while ((len = inputStream.read(bytes)) != -1){
                 outputStream.write(bytes,0,len);
                 outputStream.flush();

@@ -9,6 +9,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 
 import javax.net.ssl.SSLContext;
 import java.io.*;
@@ -24,7 +28,8 @@ import java.util.Map;
  * @description
  */
 public class HttpClientUtil {
-
+    public static String SSLCERT_PATH = "D:\\Downloads\\wxapi\\WXCertUtil\\cert\\apiclient_cert.p12";//证书的路径
+    public static String SSLCERT_PASSWORD="1635180453";//证书的密籍   自己的商户号
     /**
      * 向指定URL发送GET方法的请求
      *
@@ -194,8 +199,7 @@ public class HttpClientUtil {
      * https双向签名认证，用于支付申请退款
      *
      * */
-    public static String SSLCERT_PATH="C:\\Users\\Administrator\\Desktop\\jar\\p12\\apiclient_cert.p12";//证书的路径
-    public static String SSLCERT_PASSWORD="1356530102";//证书的密籍   自己的商户号
+
     @SuppressWarnings("deprecation")
     public static String doRefund(String url,String data) throws Exception {
         //注意PKCS12证书 是从微信商户平台-》账户设置-》 API安全 中下载的

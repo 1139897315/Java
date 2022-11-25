@@ -3,11 +3,13 @@ package com.ithaorong.reggie.api;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ithaorong.reggie.dto.DishDto;
 import com.ithaorong.reggie.entity.Category;
 import com.ithaorong.reggie.entity.Dish;
 import com.ithaorong.reggie.entity.DishFlavor;
+import com.ithaorong.reggie.entity.Employee;
 import com.ithaorong.reggie.service.CategoryService;
 import com.ithaorong.reggie.service.DishFlavorService;
 import com.ithaorong.reggie.service.DishService;
@@ -95,11 +97,19 @@ public class DishController {
             @ApiImplicitParam(dataType = "String",name = "name", value = "查询的姓名",required = true)
     })
     public ResultVO page(@RequestHeader String token,int page, int pageSize,String name){
+        Long storeId;
+        try {
+            String s = stringRedisTemplate.opsForValue().get(token);
+            storeId = objectMapper.readValue(s, Employee.class).getStoreId();
+        } catch (JsonProcessingException e) {
+            return ResultVO.error("出现异常！");
+        }
         //构造分页构造器
         Page<Dish> pageInfo = new Page<>(page,pageSize);
         Page<DishDto> dishDtoPage = new Page<>(page,pageSize);
         //构造条件构造器
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Dish::getStoreId,storeId);
 
         //执行查询，当name不为空
         if(name!=null && name.length() > 0){

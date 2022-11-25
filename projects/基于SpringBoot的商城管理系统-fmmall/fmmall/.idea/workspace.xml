@@ -21,25 +21,7 @@
   <component name="ChangeListManager">
     <list default="true" id="62757e8d-6895-46b1-99a8-25359f379e33" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/AddressBookController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/AddressBookController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/DeskController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/DeskController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/OrderController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/UserController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/WXPayController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/java/com/ithaorong/reggie/api/WXPayController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/AddressBookController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/AddressBookController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/DeskController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/DeskController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/OrderController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/OrderController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/UserController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/WXPayController.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/api/target/classes/com/ithaorong/reggie/api/WXPayController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/beans/src/main/java/com/ithaorong/reggie/entity/Desk.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/beans/src/main/java/com/ithaorong/reggie/entity/Desk.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/beans/src/main/java/com/ithaorong/reggie/entity/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/beans/src/main/java/com/ithaorong/reggie/entity/Order.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/src/main/java/com/ithaorong/reggie/config/DateConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/src/main/java/com/ithaorong/reggie/config/DateConverter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/src/main/java/com/ithaorong/reggie/utils/WXPayConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/src/main/java/com/ithaorong/reggie/utils/WXPayConstants.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/src/main/java/com/ithaorong/reggie/utils/WXPayUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/src/main/java/com/ithaorong/reggie/utils/WXPayUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/src/main/java/com/ithaorong/reggie/utils/WXPayXmlUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/src/main/java/com/ithaorong/reggie/utils/WXPayXmlUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/target/classes/com/ithaorong/reggie/config/DateConverter.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/target/classes/com/ithaorong/reggie/config/DateConverter.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/target/classes/com/ithaorong/reggie/utils/WXPayConstants$SignType.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/target/classes/com/ithaorong/reggie/utils/WXPayConstants$SignType.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/target/classes/com/ithaorong/reggie/utils/WXPayConstants.class" beforeDir="false" afterPath="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie/common/target/classes/com/ithaorong/reggie/utils/WXPayConstants.class" afterDir="false" />
     </list>
@@ -91,7 +73,7 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit4" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit4" value="" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../基于SpringBoot的外卖系统-reggie/reggie" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -279,6 +261,7 @@
       <workItem from="1669165280943" duration="874000" />
       <workItem from="1669195048394" duration="636000" />
       <workItem from="1669254059090" duration="4528000" />
+      <workItem from="1669338513427" duration="612000" />
     </task>
     <servers />
   </component>
@@ -302,10 +285,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="249" y="0" key="#Project_Structure/0.0.1536.824@0.0.1536.824" timestamp="1666447607334" />
-    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1669166139924">
+    <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1669338534693">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1669166139924" />
+    <state x="740" y="274" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1669338534693" />
     <state width="1024" height="168" key="GridCell.Tab.0.bottom" timestamp="1666457404634">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

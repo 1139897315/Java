@@ -7,12 +7,10 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class Desk implements Serializable {
+public class UserDesk implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId(value = "id",type = IdType.AUTO)
     private Long id;
-    private String name;
-    private Long storeId;
-    private int status;
-    private String imgUrl;
+    private Long deskId;
+    private Long userId;
 }

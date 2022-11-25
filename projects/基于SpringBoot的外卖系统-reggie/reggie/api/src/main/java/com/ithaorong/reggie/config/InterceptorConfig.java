@@ -24,7 +24,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/dish/listAll")
                 .addPathPatterns("/category/**")
                 .excludePathPatterns("/category/listAll")
-                .addPathPatterns("/setmeal/**");
+                .addPathPatterns("/setmeal/**")
+                .addPathPatterns("/desk/**");
 
 
         registry.addInterceptor(setTimeInterceptor).addPathPatterns("/**");

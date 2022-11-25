@@ -34,6 +34,8 @@ public class Dish implements Serializable {
     private String code;
 
 
+    private Long storeId;
+
     //图片
     private String image;
 

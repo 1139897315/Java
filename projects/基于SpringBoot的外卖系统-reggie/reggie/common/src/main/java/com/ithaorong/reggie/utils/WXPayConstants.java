@@ -1,11 +1,15 @@
 package com.ithaorong.reggie.utils;
 
 import org.apache.http.client.HttpClient;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 /**
  * 常量
  */
 public class WXPayConstants {
+
 
     /*自定义内容*/
     /*支付*/

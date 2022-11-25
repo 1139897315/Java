@@ -163,7 +163,7 @@ public class OrderController {
      */
     @PutMapping("/updateOrderStatus")
     public ResultVO updateOrderStatus(@RequestHeader String token, @RequestBody Order order){
-        return orderService.updateOrderStatus(order.getUserId(),order.getOrderId(),order.getStatus());
+        return orderService.updateOrder(order.getUserId(),order.getOrderId(),order.getStatus());
     }
 
     /**
@@ -199,7 +199,7 @@ public class OrderController {
     public ResultVO cancelOrder(@RequestHeader String token, @RequestBody Order order){
         synchronized (this){
             //  1.修改当前订单：status=5 已关闭
-            ResultVO resultVO = orderService.updateOrderStatus(order.getUserId(),order.getOrderId(),order.getStatus());
+            ResultVO resultVO = orderService.updateOrder(order.getUserId(),order.getOrderId(),order.getStatus());
             if (resultVO.getCode() == 1)
                 return ResultVO.success("关闭成功！");
             else

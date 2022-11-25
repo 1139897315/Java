@@ -152,11 +152,19 @@ public class EmployeeController {
         @ApiImplicitParam(dataType = "String",name = "name", value = "查询的姓名",required = true)
     })
     public ResultVO page(@RequestHeader String token,int page, int pageSize,String name){
+        Long storeId;
+        try {
+            String s = stringRedisTemplate.opsForValue().get(token);
+            storeId = objectMapper.readValue(s, Employee.class).getStoreId();
+        } catch (JsonProcessingException e) {
+            return ResultVO.error("出现异常！");
+        }
         //构造分页构造器
         Page pageInfo = new Page(page,pageSize);
 
         //构造条件构造器
         LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<Employee>();
+        queryWrapper.eq(Employee::getStoreId,storeId);
         //执行查询，当name不为空
         if(name!=null && name.length() > 0){
             for (int i = 0; i < name.length(); i++) {
