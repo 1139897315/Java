@@ -11,6 +11,7 @@ import com.ithaorong.reggie.entity.User;
 import com.ithaorong.reggie.entity.UserInfo;
 import com.ithaorong.reggie.service.UserService;
 import com.ithaorong.reggie.service.WXService;
+import com.ithaorong.reggie.utils.WXPayConstants;
 import com.ithaorong.reggie.vo.ResultVO;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -27,10 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-    @Value("${wx.appId}")
-    private String appId;
-    @Value("${wx.secret}")
-    private String secret;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
     @Resource
@@ -43,7 +40,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public ResultVO getSessionId(String code) {
         //校验接口，获取返回结果（通过code去获取该用户唯一凭证信息）
         String url = "https://api.weixin.qq.com/sns/jscode2session?appid={0}&secret={1}&js_code={2}&grant_type=authorization_code";
-        url = url.replace("{0}",appId).replace("{1}",secret).replace("{2}",code);
+        url = url.replace("{0}",WXPayConstants.APP_ID).replace("{1}", WXPayConstants.SECRET).replace("{2}",code);
 
         String res = HttpUtil.get(url);
         String uuid = UUID.randomUUID().toString().replace("-", "");

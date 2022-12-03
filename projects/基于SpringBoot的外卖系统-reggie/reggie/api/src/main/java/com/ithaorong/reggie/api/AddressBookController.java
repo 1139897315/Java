@@ -79,7 +79,6 @@ public class AddressBookController {
         synchronized (this){
             addressBook.setIsDeleted(0);
             addressBook.setUpdateTime(LocalDateTime.now());
-
             addressBookService.updateById(addressBook);
 
             return ResultVO.success("修改成功！");

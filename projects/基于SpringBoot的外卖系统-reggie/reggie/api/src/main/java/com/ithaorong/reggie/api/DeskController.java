@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ithaorong.reggie.entity.Desk;
 import com.ithaorong.reggie.entity.Employee;
+import com.ithaorong.reggie.entity.User;
 import com.ithaorong.reggie.entity.UserDesk;
 import com.ithaorong.reggie.service.DeskService;
 import com.ithaorong.reggie.service.UserDeskService;
@@ -61,19 +62,23 @@ public class DeskController {
     @GetMapping("/page")
     public ResultVO page(@RequestHeader String token,int page, int pageSize,String name){
         //若不存在，则添加用户                （添加用户信息和设置为新用户）
-        Long storeId;
+        Employee employee;
         try {
             String s = stringRedisTemplate.opsForValue().get(token);
-            storeId = objectMapper.readValue(s, Employee.class).getStoreId();
+            employee = objectMapper.readValue(s, Employee.class);
         } catch (JsonProcessingException e) {
             return ResultVO.error("出现异常！");
         }
+        Long storeId = employee.getStoreId();
+        int ranking = employee.getRanking();
         //构造分页构造器
         Page pageInfo = new Page(page,pageSize);
 
         //构造条件构造器
         LambdaQueryWrapper<Desk> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Desk::getStoreId,storeId);
+        if (ranking == 1 || ranking == 2)
+            queryWrapper.eq(Desk::getStoreId,storeId);
+
         //执行查询，当name不为空
         if(name!=null && name.length() > 0){
             for (int i = 0; i < name.length(); i++) {
@@ -97,22 +102,28 @@ public class DeskController {
     @PutMapping("/update")
     @Transactional
     public ResultVO update(@RequestHeader String token,@RequestBody Desk desk){
-        //若不存在，则添加用户                （添加用户信息和设置为新用户）
+
         Long userId;
         try {
             String s = stringRedisTemplate.opsForValue().get(token);
-            userId = objectMapper.readValue(s, Employee.class).getId();
+            userId = objectMapper.readValue(s, User.class).getId();
         } catch (JsonProcessingException e) {
             return ResultVO.error("出现异常！");
         }
         synchronized (this){
             deskService.updateById(desk);
 
-            UserDesk userDesk = new UserDesk();
-            userDesk.setId(0L);
-            userDesk.setUserId(userId);
-            userDesk.setDeskId(desk.getId());
-            userDeskService.save(userDesk);
+            if (desk.getStatus() == 1){
+                UserDesk userDesk = new UserDesk();
+                userDesk.setId(0L);
+                userDesk.setUserId(userId);
+                userDesk.setDeskId(desk.getId());
+                userDeskService.save(userDesk);
+            }else if (desk.getStatus() == 2){
+
+                //删除关系表
+
+            }
 
             return ResultVO.success("修改成功！");
         }
@@ -128,8 +139,10 @@ public class DeskController {
     @DeleteMapping("/delete")
     public ResultVO delete(@RequestHeader String token,Long id){
         synchronized (this){
-            deskService.removeById(id);
-            return ResultVO.success("删除成功！");
+            boolean b = deskService.removeById(id);
+            if (b)
+                return ResultVO.success("删除成功！");
+            return ResultVO.error("删除失败！");
         }
     }
 

@@ -41,5 +41,4 @@ public class ShoppingCart implements Serializable {
 
     private LocalDateTime createTime;
 
-    private int isDeleted;
 }

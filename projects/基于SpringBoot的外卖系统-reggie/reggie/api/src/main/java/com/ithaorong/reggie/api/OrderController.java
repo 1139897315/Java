@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.wxpay.sdk.WXPayUtil;
@@ -16,6 +17,8 @@ import com.ithaorong.reggie.service.OrderService;
 import com.ithaorong.reggie.service.ShoppingCartService;
 import com.ithaorong.reggie.vo.ResultVO;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -60,8 +63,6 @@ public class OrderController {
         if (order == null)
             return ResultVO.error("订单支付数据不能为空,请检查参数再试");
         synchronized (this){
-            Map<String,String> map = new HashMap<>();
-
             String openId;
             try {
                 System.out.println("token=========="+token);
@@ -77,8 +78,8 @@ public class OrderController {
             order.setUpdateUser(order.getUserId());
             order.setOpenId(openId);
             order.setCheckoutTime(null);
-            order.setUpdateTime(LocalDateTime.now());
             order.setCreateTime(LocalDateTime.now());
+            order.setUpdateTime(LocalDateTime.now());
             order.setStatus(1);
 
 
@@ -105,23 +106,56 @@ public class OrderController {
                 orderDetail.setId(0L);
 
                 orderDetailService.save(orderDetail);
+                //5.删除购物车：当购物车中的记录购买成功之后，购物车中对应做删除操作
+                shoppingCartService.removeById(sc.getId());
             }
 
             order.setUntitled(String.valueOf(untitled));
-            orderService.save(order);
+            boolean save = orderService.save(order);
 
-            //5.删除购物车：当购物车中的记录购买成功之后，购物车中对应做删除操作
-            LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(ShoppingCart::getUserId,order.getUserId())
-                            .set(ShoppingCart::getIsDeleted,1);
-            boolean is_remove = shoppingCartService.update(updateWrapper);
+
             //6.增加销量
 
-            if (is_remove)
+            if (save)
                 return ResultVO.success("保存订单成功！",orderId);
             return ResultVO.error("保存订单失败！");
         }
     }
+
+    @GetMapping("/page")
+    public ResultVO page(@RequestHeader String token,int page, int pageSize,String orderId){
+        Employee employee;
+        try {
+            String s = stringRedisTemplate.opsForValue().get(token);
+            employee = objectMapper.readValue(s, Employee.class);
+        } catch (JsonProcessingException e) {
+            return ResultVO.error("出现异常！");
+        }
+        Long storeId = employee.getStoreId();
+        int ranking = employee.getRanking();
+        //构造分页构造器
+        Page pageInfo = new Page(page,pageSize);
+
+        //构造条件构造器
+        LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
+        if (ranking == 1 || ranking == 2)
+            queryWrapper.eq(Order::getStoreId,storeId);
+        //执行查询，当name不为空
+        if(orderId!=null && orderId.length() > 0){
+            for (int i = 0; i < orderId.length(); i++) {
+                if (!Character.isWhitespace(orderId.charAt(i))){
+                    queryWrapper.like(Order::getOrderId,orderId);
+                }
+
+            }
+        }
+        //添加排序条件
+        queryWrapper.orderByAsc(Order::getStatus).orderByDesc(Order::getUpdateTime);
+
+        orderService.page(pageInfo,queryWrapper);
+        return ResultVO.success("查询成功！", pageInfo);
+    }
+
 
     /**
      * @param userId 用户id
@@ -132,7 +166,7 @@ public class OrderController {
     public ResultVO listByUserId(Long userId, Integer status){
         //获取order信息
         LambdaQueryWrapper<Order> orderLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if (userId != 0 ) {
+        if (userId != 0) {
             orderLambdaQueryWrapper.eq(Order::getUserId,userId);
         }
         if (status!=null && (status == 1 || status == 2 ||status == 3 ||status == 4 ||status == 5)) {
@@ -164,6 +198,12 @@ public class OrderController {
     @PutMapping("/updateOrderStatus")
     public ResultVO updateOrderStatus(@RequestHeader String token, @RequestBody Order order){
         return orderService.updateOrder(order.getUserId(),order.getOrderId(),order.getStatus());
+    }
+
+    @PutMapping("/update")
+    public ResultVO update(@RequestHeader String token, @RequestBody Order order){
+        boolean b = orderService.updateById(order);
+        return ResultVO.success("",b);
     }
 
     /**

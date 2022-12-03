@@ -26,6 +26,8 @@ public class Order implements Serializable {
 
     //订单状态 1待付款，2待派送，3已派送，4已完成，5已取消
     private Integer status;
+
+    private Long storeId;
     //下单用户id
     private Long userId;
     //红包金额
@@ -60,6 +62,8 @@ public class Order implements Serializable {
 
     //备注
     private String remark;
+
+    private String tableware;
 
     //手机号
     private String phone;

@@ -97,19 +97,23 @@ public class DishController {
             @ApiImplicitParam(dataType = "String",name = "name", value = "查询的姓名",required = true)
     })
     public ResultVO page(@RequestHeader String token,int page, int pageSize,String name){
-        Long storeId;
+
+        Employee employee;
         try {
             String s = stringRedisTemplate.opsForValue().get(token);
-            storeId = objectMapper.readValue(s, Employee.class).getStoreId();
+            employee = objectMapper.readValue(s, Employee.class);
         } catch (JsonProcessingException e) {
             return ResultVO.error("出现异常！");
         }
+        Long storeId = employee.getStoreId();
+        int ranking = employee.getRanking();
         //构造分页构造器
         Page<Dish> pageInfo = new Page<>(page,pageSize);
         Page<DishDto> dishDtoPage = new Page<>(page,pageSize);
         //构造条件构造器
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Dish::getStoreId,storeId);
+        if (ranking == 1 || ranking == 2)
+            queryWrapper.eq(Dish::getStoreId,storeId);
 
         //执行查询，当name不为空
         if(name!=null && name.length() > 0){
@@ -153,11 +157,11 @@ public class DishController {
     /**
      * 根据条件查询菜品信息（排查）
      */
-    @GetMapping("/list")
-    public ResultVO list(@RequestHeader String token, Dish dish){
-        List<DishDto> list = dishService.list(dish);
-        return ResultVO.success("查询成功！",list);
-    }
+//    @GetMapping("/list")
+//    public ResultVO list(@RequestHeader String token, Dish dish){
+//        List<DishDto> list = dishService.list(dish);
+//        return ResultVO.success("查询成功！",list);
+//    }
     /**
      * 根据条件查询菜品信息
      */

@@ -40,8 +40,7 @@ public class ShoppingCartController {
     public ResultVO addShoppingCart(@RequestHeader String token, @RequestBody ShoppingCart cart) {
         synchronized (this){
             LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(ShoppingCart::getUserId,cart.getUserId())
-                        .eq(ShoppingCart::getIsDeleted,0);
+            queryWrapper.eq(ShoppingCart::getUserId,cart.getUserId());
             List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
             if (list != null){
                 boolean change = false;
@@ -56,7 +55,6 @@ public class ShoppingCartController {
                 }
                 if (!change){
                     cart.setId(0L);
-                    cart.setIsDeleted(0);
                     cart.setCreateTime(LocalDateTime.now());
                     cart.setUserId(cart.getUserId());
                     shoppingCartService.save(cart);
@@ -71,7 +69,6 @@ public class ShoppingCartController {
     public ResultVO listShoppingCartsByUserId(Long userId) {
         LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ShoppingCart::getUserId,userId)
-                    .eq(ShoppingCart::getIsDeleted,0)
                     .gt(ShoppingCart::getNumber,0);
         List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
         int allNum = 0;

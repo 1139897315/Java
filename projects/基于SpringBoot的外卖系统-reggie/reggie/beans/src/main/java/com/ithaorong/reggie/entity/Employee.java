@@ -32,6 +32,8 @@ public class Employee implements Serializable {
 
     private Long storeId;
 
+    private Integer ranking;
+
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;

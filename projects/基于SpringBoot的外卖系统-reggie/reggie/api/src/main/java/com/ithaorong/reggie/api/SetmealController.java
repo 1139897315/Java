@@ -2,10 +2,13 @@ package com.ithaorong.reggie.api;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ithaorong.reggie.dto.DishDto;
 import com.ithaorong.reggie.dto.SetmealDto;
 import com.ithaorong.reggie.entity.Category;
 import com.ithaorong.reggie.entity.Dish;
+import com.ithaorong.reggie.entity.Employee;
 import com.ithaorong.reggie.entity.Setmeal;
 import com.ithaorong.reggie.service.CategoryService;
 import com.ithaorong.reggie.service.SetmealService;
@@ -14,6 +17,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,6 +34,10 @@ public class SetmealController {
     private SetmealService setmealService;
     @Resource
     private CategoryService categoryService;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private ObjectMapper objectMapper;
 
     @PostMapping
     @ApiImplicitParam(dataType = "SetmealDto",name = "setmealDto", value = "添加套餐接口",required = true)
@@ -40,29 +48,43 @@ public class SetmealController {
     /**
      * 根据条件查询套餐信息
      */
-    @GetMapping("/listAll")
-    public ResultVO listAll(){
-        //构造条件构造器
-        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
-
-        //添加条件，查询状态为1的（起售）
-        queryWrapper.eq(Setmeal::getStatus,1);
-        //添加排序条件
-        queryWrapper.orderByDesc(Setmeal::getCategoryId).orderByDesc(Setmeal::getUpdateTime);
-
-        List<Setmeal> list = setmealService.list(queryWrapper);
-
-        return ResultVO.success("查询成功！", list);
-    }
+//    @GetMapping("/listAll")
+//    public ResultVO listAll(Long storeId){
+//        //构造条件构造器
+//        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+//
+//        //添加条件，查询状态为1的（起售）
+//        queryWrapper.eq(Setmeal::getStatus,1);
+//        //添加排序条件
+//        queryWrapper.orderByDesc(Setmeal::getCategoryId).orderByDesc(Setmeal::getUpdateTime)
+//                    .eq(Setmeal::getStoreId,storeId);
+//
+//        List<Setmeal> list = setmealService.list(queryWrapper);
+//
+//        return ResultVO.success("查询成功！", list);
+//    }
 
     @GetMapping("/page")
     public ResultVO page(@RequestHeader String token, int page, int pageSize,String name){
+        //获取用户id
+        //修改人
 
+        Employee employee;
+        try {
+            String s = stringRedisTemplate.boundValueOps(token).get();
+            employee = objectMapper.readValue(s, Employee.class);
+        } catch (JsonProcessingException e) {
+            return ResultVO.error("出现异常！");
+        }
+        Long storeId = employee.getStoreId();
+        int ranking = employee.getRanking();
         Page<Setmeal> pageInfo = new Page<>(page,pageSize);
         Page<SetmealDto> dtoPage = new Page<>();
 
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(name != null,Setmeal::getName,name);
+        if (ranking == 1 || ranking == 2)
+            queryWrapper.eq(Setmeal::getStoreId,storeId);
 
         queryWrapper.orderByDesc(Setmeal::getUpdateTime);
         setmealService.page(pageInfo,queryWrapper);

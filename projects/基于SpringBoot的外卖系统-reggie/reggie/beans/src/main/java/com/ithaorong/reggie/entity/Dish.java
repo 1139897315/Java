@@ -33,7 +33,7 @@ public class Dish implements Serializable {
     //商品码
     private String code;
 
-
+    //门店id
     private Long storeId;
 
     //图片

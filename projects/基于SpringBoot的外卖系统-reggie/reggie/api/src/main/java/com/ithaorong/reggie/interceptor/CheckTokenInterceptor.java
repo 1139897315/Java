@@ -46,22 +46,22 @@ public class CheckTokenInterceptor implements HandlerInterceptor {
                 return true;
             }
             return true;
-            /**
-             try {
-             JwtParser parser = Jwts.parser();
-             Jws<Claims> claimsJws = parser.parseClaimsJws(token);
-             return true;
-             }catch (ExpiredJwtException e){
-             ResultVO resultVO = new ResultVO(ResStatus.LOGIN_FAIL_OVERDUE, "登录过期，请重新登录！", null);
-             doResponse(response,resultVO);
-             }catch (UnsupportedJwtException e){
-             ResultVO resultVO = new ResultVO(ResStatus.LOGIN_FAIL_NOT, "Token不合法，请自重！", null);
-             doResponse(response,resultVO);
-             }catch (Exception e){
-             ResultVO resultVO = new ResultVO(ResStatus.LOGIN_FAIL_NOT, "请先登录！", null);
-             doResponse(response,resultVO);
-             }
-             **/
+            /*
+                 try {
+                 JwtParser parser = Jwts.parser();
+                 Jws<Claims> claimsJws = parser.parseClaimsJws(token);
+                 return true;
+                 }catch (ExpiredJwtException e){
+                 ResultVO resultVO = new ResultVO(ResStatus.LOGIN_FAIL_OVERDUE, "登录过期，请重新登录！", null);
+                 doResponse(response,resultVO);
+                 }catch (UnsupportedJwtException e){
+                 ResultVO resultVO = new ResultVO(ResStatus.LOGIN_FAIL_NOT, "Token不合法，请自重！", null);
+                 doResponse(response,resultVO);
+                 }catch (Exception e){
+                 ResultVO resultVO = new ResultVO(ResStatus.LOGIN_FAIL_NOT, "请先登录！", null);
+                 doResponse(response,resultVO);
+                 }
+             */
         }
         return false;
     }

@@ -69,14 +69,17 @@ public class CategoryController {
 
             //若不存在，则添加用户                （添加用户信息和设置为新用户）
             Long empId;
+            Long storeId;
             try {
                 String s = stringRedisTemplate.opsForValue().get(token);
                 empId = objectMapper.readValue(s, Employee.class).getId();
+                storeId = objectMapper.readValue(s, Employee.class).getStoreId();
             } catch (JsonProcessingException e) {
                 return ResultVO.error("出现异常！");
             }
 
             category.setId(0L);
+            category.setStoreId(storeId);
 
             category.setCreateTime(LocalDateTime.now());
             category.setUpdateTime(LocalDateTime.now());
@@ -102,14 +105,25 @@ public class CategoryController {
             @ApiImplicitParam(dataType = "String",name = "name", value = "查询的姓名",required = true)
     })
     public ResultVO page(@RequestHeader String token,int page, int pageSize){
+        Employee employee;
+        try {
+            String s = stringRedisTemplate.opsForValue().get(token);
+            employee = objectMapper.readValue(s, Employee.class);
+        } catch (JsonProcessingException e) {
+            return ResultVO.error("出现异常！");
+        }
+        Long storeId = employee.getStoreId();
+        int ranking = employee.getRanking();
         //构造分页构造器
         Page pageInfo = new Page(page,pageSize);
 
         //构造条件构造器
-        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<Category>();
+        LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
 
         //添加排序条件
         queryWrapper.orderByDesc(Category::getSort);
+        if (ranking == 1|| ranking ==2)
+            queryWrapper.eq(Category::getStoreId,storeId);
 
         categoryService.page(pageInfo,queryWrapper);
         return ResultVO.success("查询成功！", pageInfo);
@@ -173,19 +187,15 @@ public class CategoryController {
         return ResultVO.error("没有查询到页面数据");
     }
 
-    /**
-     * 根据条件查询分类信息
-     *  get
-     *  参数：page、pageSize、name
-     *  返回：Page
-     */
+
     @GetMapping("/list")
     @ApiImplicitParam(dataType = "Category",name = "category", value = "查询的姓名",required = true)
     public ResultVO list(@RequestHeader String token,Category category){
         //构造条件构造器
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
 
-        queryWrapper.eq(category.getType() != null, Category::getType,category.getType());
+        queryWrapper.eq(category.getType() != null, Category::getType,category.getType())
+                    .eq(Category::getStoreId,category.getStoreId());
         //添加排序条件
         queryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
 
@@ -197,12 +207,14 @@ public class CategoryController {
      * 根据条件查询分类以及其下的菜品套餐信息
      */
     @GetMapping("/listAll")
-    public ResultVO listAll(){
+    public ResultVO listAll(Long storeId){
         //构造条件构造器
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
 
         //添加排序条件
         queryWrapper.orderByAsc(Category::getSort).orderByDesc(Category::getType);
+
+        queryWrapper.eq(Category::getStoreId,storeId);
         //获取分类基本信息
         List<Category> list = categoryService.list(queryWrapper);
 
@@ -215,12 +227,13 @@ public class CategoryController {
             if (categoryDto.getType() == 1){
                 Dish dish = new Dish();
                 dish.setCategoryId(categoryDto.getId());
+                dish.setStoreId(storeId);
                 List<DishDto> dishDtos = dishService.list(dish);
                 categoryDto.setDishes(dishDtos);
             }
             //套餐分类（包含菜品（包含口味））
             else if (categoryDto.getType() == 2){
-                List<SetmealDto> setmealDtos = setmealService.getListByCategoryId(categoryDto.getId());
+                List<SetmealDto> setmealDtos = setmealService.getListByCategoryId(storeId,categoryDto.getId());
                 categoryDto.setSetmealDtos(setmealDtos);
             }
             //根据分类查找菜品

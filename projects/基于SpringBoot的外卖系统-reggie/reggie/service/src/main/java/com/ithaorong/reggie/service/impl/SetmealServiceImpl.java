@@ -44,14 +44,18 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
             //获取用户id
             //修改人
             Long empId;
+            Long storeId;
             try {
                 String s = stringRedisTemplate.boundValueOps(token).get();
                 empId = objectMapper.readValue(s, Employee.class).getId();
+                storeId = objectMapper.readValue(s, Employee.class).getStoreId();
             } catch (JsonProcessingException e) {
                 return ResultVO.error("出现异常！");
             }
 
             setmealDto.setId(0L);
+            setmealDto.setStoreId(storeId);
+
             setmealDto.setCreateTime(LocalDateTime.now());
             setmealDto.setUpdateTime(LocalDateTime.now());
 
@@ -78,10 +82,6 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
                 item.setUpdateUser(empId);
                 return item;
             }).collect(Collectors.toList());
-
-            // for (SetmealDish s : setmealDishes) {
-            //     s.setSetmealId(setmealDto.getCategoryId());
-            // }
 
             setmealDishService.saveBatch(setmealDishes);
             return ResultVO.success("添加成功！");
@@ -135,21 +135,23 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         return ResultVO.success("查询成功",setmealDto);
     }
 
-    //根据分类id查询套餐信息列表
-    public List<SetmealDto> getListByCategoryId(Long categoryId) {
+    //根据门店+分类id查询套餐信息列表
+    public List<SetmealDto> getListByCategoryId(Long storeId,Long categoryId) {
         //查询套餐基本信息
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Setmeal::getCategoryId,categoryId)
-                    .eq(Setmeal::getStatus,1);
+                    .eq(Setmeal::getStatus,1)
+                    .eq(Setmeal::getStoreId,storeId);
         List<Setmeal> setmeals = this.list(queryWrapper);
 
         List<SetmealDto> list = setmeals.stream().map((item) -> {
             SetmealDto setmealDto = new SetmealDto();
             BeanUtils.copyProperties(item,setmealDto);
 
-            //查询套餐的口味信息
+            //查询套餐的菜品信息
             LambdaQueryWrapper<SetmealDish> setmealDishLambdaQueryWrapper = new LambdaQueryWrapper<>();
-            setmealDishLambdaQueryWrapper.eq(SetmealDish::getDishId,setmealDto.getId());
+            setmealDishLambdaQueryWrapper.eq(SetmealDish::getSetmealId,setmealDto.getId());
+
             List<SetmealDish> setmealDishes = setmealDishService.list(setmealDishLambdaQueryWrapper);
             setmealDto.setSetmealDishes(setmealDishes);
 
@@ -179,22 +181,23 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
             //更新数据
             this.updateById(setmealDto);
 
-            //删除口味
+            //删除菜品
             LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(SetmealDish::getDishId,setmealDto.getId());
             setmealDishService.remove(queryWrapper);
 
 
-            //添加当前提交过来的口味
+            //添加当前提交过来的菜品
             List<SetmealDish> setmealDishes = setmealDto.getSetmealDishes();
             setmealDishes.stream().map((item) -> {
-
                 item.setSetmealId(setmealDto.getId());
                 item.setDishId(setmealDto.getId());
+
                 item.setCreateUser(empId);
+                item.setUpdateUser(empId);
+
                 item.setCreateTime(LocalDateTime.now());
                 item.setUpdateTime(LocalDateTime.now());
-                item.setUpdateUser(empId);
 
                 return item;
             }).collect(Collectors.toList());

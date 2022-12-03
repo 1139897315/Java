@@ -5,6 +5,7 @@ import com.qfedu.fmmall.service.OrderService;
 import com.qfedu.fmmall.websocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,7 +27,7 @@ public class PayController {
      * 回调接口:当用户支付成功之后，微信支付平台就会请求这个接口，将支付状态的数据传递过来
      */
     @RequestMapping("/callback")
-    public String paySuccess(HttpServletRequest request) throws Exception {
+    public String paySuccess(HttpServletRequest request,@RequestBody Wxpaynotifyvo param) throws Exception {
         System.out.println("--------------------callback");
         // 1.接收微信支付平台传递的数据（使用request的输入流接收）
         ServletInputStream is = request.getInputStream();

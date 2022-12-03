@@ -37,14 +37,17 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             //获取用户id
             //修改人
             Long empId;
+            Long storeId;
             try {
                 String s = stringRedisTemplate.boundValueOps(token).get();
                 empId = objectMapper.readValue(s, Employee.class).getId();
+                storeId = objectMapper.readValue(s, Employee.class).getStoreId();
             } catch (JsonProcessingException e) {
                 return ResultVO.error("出现异常！");
             }
 
             dishDto.setId(0L);
+            dishDto.setStoreId(storeId);
             dishDto.setCreateTime(LocalDateTime.now());
             dishDto.setUpdateTime(LocalDateTime.now());
 
@@ -121,7 +124,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             //添加当前提交过来的口味
             List<DishFlavor> flavors = dishDto.getFlavors();
             flavors.stream().map((item) -> {
-//                item.setId(0L);
+                item.setId(0L);
                 item.setDishId(dishDto.getId());
 
 
@@ -165,12 +168,14 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
     @Override
     public List<DishDto> list(Dish dish) {
+
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
 
         //添加条件，查询状态为1的（起售）
         queryWrapper.eq(Dish::getStatus,1);
         //获取该分类下的
-        queryWrapper.eq(dish.getCategoryId()!=null,Dish::getCategoryId,dish.getCategoryId());
+        queryWrapper.eq(dish.getCategoryId()!=null,Dish::getCategoryId,dish.getCategoryId())
+                    .eq(Dish::getStoreId,dish.getStoreId());
         queryWrapper.orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime).orderByDesc(Dish::getUpdateTime);
 
         List<Dish> list = this.list(queryWrapper);
