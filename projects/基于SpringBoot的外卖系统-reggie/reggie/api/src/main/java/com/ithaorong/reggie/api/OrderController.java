@@ -3,12 +3,9 @@ package com.ithaorong.reggie.api;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.wxpay.sdk.WXPayUtil;
-import com.ithaorong.reggie.dto.DishDto;
 import com.ithaorong.reggie.dto.OrderDto;
 import com.ithaorong.reggie.entity.*;
 import com.ithaorong.reggie.service.AddressBookService;
@@ -17,14 +14,11 @@ import com.ithaorong.reggie.service.OrderService;
 import com.ithaorong.reggie.service.ShoppingCartService;
 import com.ithaorong.reggie.vo.ResultVO;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -167,11 +161,10 @@ public class OrderController {
         //获取order信息
         LambdaQueryWrapper<Order> orderLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (userId != 0) {
-            orderLambdaQueryWrapper.eq(Order::getUserId,userId);
+            orderLambdaQueryWrapper.eq(Order::getUserId,userId)
+                                    .orderByDesc(Order::getCreateTime);
         }
-        if (status!=null && (status == 1 || status == 2 ||status == 3 ||status == 4 ||status == 5)) {
-            orderLambdaQueryWrapper.eq(Order::getStatus,status);
-        }
+
         List<Order> orderList = orderService.list(orderLambdaQueryWrapper);
         //复制每个order信息
 
@@ -215,11 +208,12 @@ public class OrderController {
     public ResultVO getOrderById(String orderId) {
         LambdaQueryWrapper<Order> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Order::getOrderId,orderId)
-                    .in(Order::getStatus,1,2,3,4);
+                    .in(Order::getStatus,-1,1,2,3,4,6);
         Order order = orderService.getOne(queryWrapper);
 
         //复制每个order信息
         OrderDto orderDto = new OrderDto();
+
         BeanUtils.copyProperties(order,orderDto);
 
 

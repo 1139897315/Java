@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import net.bytebuddy.asm.Advice;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -28,10 +30,11 @@ public class Order implements Serializable {
     private Integer status;
 
     private Long storeId;
+
     //下单用户id
     private Long userId;
-    //红包金额
 
+    //红包金额
     private Integer reduceMoney;
 
     //购买方式 1外卖 2堂食
@@ -59,6 +62,9 @@ public class Order implements Serializable {
 
     //实收金额
     private BigDecimal amount;
+
+    //自提时间
+    private String acquiredTime;
 
     //备注
     private String remark;

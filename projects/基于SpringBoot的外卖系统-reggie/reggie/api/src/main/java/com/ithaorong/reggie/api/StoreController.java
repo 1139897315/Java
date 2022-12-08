@@ -35,15 +35,13 @@ public class StoreController {
     @Resource
     private StoreService storeService;
     @Resource
-    private DeskService deskService;
-    @Resource
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private ObjectMapper objectMapper;
 
     @PostMapping("/save")
     @Transactional
-    public ResultVO save(@RequestHeader String token, @RequestBody StoreDto storeDto){
+    public ResultVO save(@RequestHeader String token, @RequestBody Store store){
         Employee emp;
         try {
             String s = stringRedisTemplate.opsForValue().get(token);
@@ -51,35 +49,25 @@ public class StoreController {
         } catch (JsonProcessingException e) {
             return ResultVO.error("出现异常！");
         }
-        Long storeId = emp.getStoreId();
         int ranking = emp.getRanking();
         if(ranking == 3){
             synchronized (this){
-                storeDto.setId(0L);
-                storeDto.setStatus(0);
-                storeDto.setCreateTime(LocalDateTime.now());
-                storeDto.setUpdateTime(LocalDateTime.now());
-                storeDto.setIsDelete(0);
-                storeDto.setRanking(0);
-                storeDto.setDayCustomers(0L);
-                storeDto.setMonthCustomers(0L);
-                storeDto.setYearCustomers(0L);
-                storeDto.setDayTurnover(0L);
-                storeDto.setMonthTurnover(0L);
-                storeDto.setYearTurnover(0L);
-                storeDto.setName(storeDto.getName());
-                storeDto.setDetailAddress(storeDto.getDetailAddress());
-                boolean is_OK = storeService.save(storeDto);
+                store.setId(0L);
+                store.setStatus(0);
+                store.setCreateTime(LocalDateTime.now());
+                store.setUpdateTime(LocalDateTime.now());
+                store.setIsDelete(0);
+                store.setRanking(0);
+                store.setDayCustomers(0L);
+                store.setMonthCustomers(0L);
+                store.setYearCustomers(0L);
+                store.setDayTurnover(0L);
+                store.setMonthTurnover(0L);
+                store.setYearTurnover(0L);
+                System.out.println(store.getBeginHour());
+                System.out.println(store.getEndHour());
+                boolean is_OK = storeService.save(store);
 
-                //保存套餐菜品关系信息 操作setmeal_dish，执行insert操作
-                List<Desk> desks = storeDto.getDesks();
-                //由于在SetmealDish中没有setmealid，所有给每个SetmealDish附上setmealid
-                //setmeal_dish：类似一个快照表，将菜品id、份数、菜名等都copy一份，并对应套餐id
-                //对应的Java实现方式为封装一个List<快照表>
-
-                // for (SetmealDish s : setmealDishes) {
-                //     s.setSetmealId(setmealDto.getCategoryId());
-                // }
                 if (is_OK)
                     return ResultVO.success("保存成功！");
                 return ResultVO.error("保存出错！");

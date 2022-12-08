@@ -178,6 +178,7 @@ public class WXPayController {
             queryWrapper.eq(Order::getOrderId,orderId);
             Order order = orderService.getOne(queryWrapper);
             ResultVO resultVO = orderService.updateOrder(order.getUserId(), orderId, 4);
+
             //2.修改支付时间
             LambdaUpdateWrapper<Order> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.eq(Order::getOrderId,orderId)
@@ -186,19 +187,27 @@ public class WXPayController {
 
             //3.当天客户数+1
             //4.当天营业额+数额
+            BigDecimal amount = order.getAmount();
+            double price = amount.doubleValue();
+            String str_price = String.valueOf(price);
+
             LambdaUpdateWrapper<Store> updateWrapper1 = new LambdaUpdateWrapper<>();
             updateWrapper1.eq(Store::getId,order.getStoreId())
                         .setSql("day_customers = day_customers + 1")
-                        .setSql("day_turnover = day_turnover + "+order.getAmount());
+                        .setSql("day_turnover = day_turnover + "+str_price);
             storeService.update(updateWrapper1);
 
             //5.增加积分
             LambdaUpdateWrapper<User> updateWrapper2 = new LambdaUpdateWrapper<>();
-            updateWrapper2.eq(User::getId,order.getUserId())
+            if (price <= 10){
+                updateWrapper2.eq(User::getId,order.getUserId())
                         .set(User::getPoints,10);
+            }else if (price > 10 && price <= 50){
+
+            }else
             userService.update(updateWrapper2);
 
-            //发送RabbitMQ支付成功，等操作
+            //发送RabbitMQ支付成功，等操作(解耦操作)
 
             //6.响应微信支付平台
             if(update){
@@ -310,8 +319,8 @@ public class WXPayController {
                 }else {
                     resMap.put("success","fail");//此步说明退款成功
                     resMap.put("data","退款失败");
+                    return ResultVO.error("退款失败！",resMap);
                 }
-
             //判断是否本店或权限为3的订单
             }else{
                 return ResultVO.error("该订单非本门店或当前权限不足！");

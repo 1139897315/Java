@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ithaorong.reggie.config.RedisKey;
 import com.ithaorong.reggie.entity.*;
 import com.ithaorong.reggie.service.ShoppingCartService;
+import com.ithaorong.reggie.service.UserService;
 import com.ithaorong.reggie.vo.ResultVO;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
@@ -32,26 +33,58 @@ public class ShoppingCartController {
     @Resource
     private ShoppingCartService shoppingCartService;
     @Resource
+    private UserService userService;
+    @Resource
     private StringRedisTemplate stringRedisTemplate;
     @Resource
     private ObjectMapper objectMapper;
 
     @PostMapping("/add")
+    @Transactional
     public ResultVO addShoppingCart(@RequestHeader String token, @RequestBody ShoppingCart cart) {
+        User user;
+        try {
+            String s = stringRedisTemplate.boundValueOps(token).get();
+            user = objectMapper.readValue(s, User.class);
+        } catch (JsonProcessingException e) {
+            return ResultVO.error("出现异常！");
+        }
+        int points = user.getPoints();
+
         synchronized (this){
             LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(ShoppingCart::getUserId,cart.getUserId());
             List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
             if (list != null){
+                //修改相同菜品或套餐的数量
                 boolean change = false;
                 for (ShoppingCart s : list) {
-                    if (cart.getName().equals(s.getName()) && cart.getDishFlavor().equals(s.getDishFlavor())){
-                        LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
-                        updateWrapper.eq(ShoppingCart::getId,s.getId());
-                        updateWrapper.set(ShoppingCart::getNumber,s.getNumber()+1);
-                        shoppingCartService.update(updateWrapper);
-                        change = true;
-                    }
+//                    if (s.getType() == 0){
+                        if (cart.getName().equals(s.getName()) && cart.getDishFlavor().equals(s.getDishFlavor())){
+                            LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
+                            updateWrapper.eq(ShoppingCart::getId,s.getId());
+                            updateWrapper.set(ShoppingCart::getNumber,s.getNumber()+1);
+                            shoppingCartService.update(updateWrapper);
+                            change = true;
+                        }
+//                    }else if (s.getType() == 1){
+//                        //points值与商品比较大小
+//                        if (points <= s.getPoints())
+//                            return ResultVO.error("积分不足，购买失败");
+//
+//                        if (cart.getName().equals(s.getName()) && cart.getDishFlavor().equals(s.getDishFlavor())){
+//                            LambdaUpdateWrapper<ShoppingCart> updateWrapper = new LambdaUpdateWrapper<>();
+//                            updateWrapper.eq(ShoppingCart::getId,s.getId());
+//                            updateWrapper.set(ShoppingCart::getNumber,s.getNumber()+1);
+//                            shoppingCartService.update(updateWrapper);
+//                            change = true;
+//                        }
+                        //加减数量是加减积分
+//                        User new_user = new User();
+//                        new_user.setId(user.getId());
+//                        new_user.setPoints(user.getPoints() - s.getPoints());
+//                        userService.updateById(new_user);
+//                    }
                 }
                 if (!change){
                     cart.setId(0L);

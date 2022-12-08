@@ -36,6 +36,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserMapper userMapper;
     @Resource
     private WXService wxService;
+    @Value("${jwt.secret}")
+    private String secrete;
 
     public ResultVO getSessionId(String code) {
         //校验接口，获取返回结果（通过code去获取该用户唯一凭证信息）
@@ -95,13 +97,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String token = Jwts.builder()                                //主题，就是token中携带的数据
                 .setIssuedAt(new Date())                            //设置token的生成时间
                 .setExpiration(new Date(System.currentTimeMillis() + 7*24*60*60*1000)) //设置token过期时间
-                .signWith(SignatureAlgorithm.HS256, "ithaorong")     //设置加密方式和加密密码
+                .signWith(SignatureAlgorithm.HS256, secrete)     //设置加密方式和加密密码
                 .compact();
 
         //当用户登录成功之后，将token存入redis
         try {
             String userInfo = objectMapper.writeValueAsString(user);
-            stringRedisTemplate.boundValueOps(token).set(userInfo, 7, TimeUnit.DAYS);
+            stringRedisTemplate.boundValueOps(token).set(userInfo, 6, TimeUnit.HOURS);
 
             //这两个值不能给前端展示
             user.setOpenId(null);

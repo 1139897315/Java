@@ -69,33 +69,7 @@ public class FileController {
     }
 
     @GetMapping("/download")
-    public void download(String name, HttpServletResponse response){
-
-//        try {
-//
-//            //filePath:图片完整路径
-//            URL urls = new URL(basePath + name);
-//            HttpURLConnection conn = (HttpURLConnection)urls.openConnection();
-//            conn.setRequestMethod("GET");
-//            conn.setConnectTimeout(50 * 1000);
-//            conn.setReadTimeout(50 * 1000);
-//            InputStream inStream = conn.getInputStream();
-//            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-//            byte[] buffer = new byte[2048];
-//            int len = 0;
-//            while( (len=inStream.read(buffer)) != -1 ){
-//                outStream.write(buffer, 0, len);
-//            }
-//            inStream.close();
-//            byte data[] = outStream.toByteArray();
-//            response.setContentType("image/jpg");
-//            OutputStream os = response.getOutputStream();
-//            os.write(data);
-//            os.flush();
-//            os.close();
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
+    public void download(String name, HttpServletResponse response) {
         try {
             //输入流，通过输入流读取文件内容
             FileInputStream inputStream = new FileInputStream(new File(basePath + name));
@@ -108,8 +82,8 @@ public class FileController {
 
             int len = 0;
             byte[] bytes = new byte[2048];
-            while ((len = inputStream.read(bytes)) != -1){
-                outputStream.write(bytes,0,len);
+            while ((len = inputStream.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, len);
                 outputStream.flush();
             }
 
@@ -118,53 +92,5 @@ public class FileController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        /*
-         * //filePath:图片完整路径
-         * 	   URL urls = new URL(filePath);
-         *     HttpURLConnection conn = (HttpURLConnection)urls.openConnection();
-         *     conn.setRequestMethod("GET");
-         *     conn.setConnectTimeout(50 * 1000);
-         *     conn.setReadTimeout(50 * 1000);
-         *     InputStream inStream = conn.getInputStream();
-         * 	ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-         *     byte[] buffer = new byte[2048];
-         *     int len = 0;
-         *     while( (len=inStream.read(buffer)) != -1 ){
-         *         outStream.write(buffer, 0, len);
-         *     }
-         *     inStream.close();
-         *     byte data[] = outStream.toByteArray();
-         * 	response.setContentType("image/jpg");
-         *     OutputStream os = response.getOutputStream();
-         *     os.write(data);
-         *     os.flush();
-         *     os.close();
-         */
     }
-
-//    @GetMapping("/downloadAll")
-//    public void downloadAll(HttpServletResponse response){
-//
-//        List<Dish> dishList = dishService.list();
-//        List<Setmeal> setmealList = setmealService.list();
-//        for (Dish item : dishList) {
-//            item.getImage()
-//        }
-//        try {
-//            //Base64加密每张图片
-//            Base64.getEncoder().encodeToString(originalInput.getBytes());
-//
-//
-//            StringBuilder stringBuilder = new StringBuilder();
-//            stringBuilder.append(base)
-//            response.getWriter().println();
-//
-//
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//    }
 }

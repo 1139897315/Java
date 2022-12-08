@@ -26,6 +26,8 @@ public class Setmeal implements Serializable {
     //套餐名称
     private String name;
 
+    //所需积分
+    private Integer points;
 
     //套餐价格
     private BigDecimal price;

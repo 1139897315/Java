@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -80,14 +81,19 @@ public class EmployeeController {
                 .signWith(SignatureAlgorithm.HS256, secret)     //设置加密方式和加密密码
                 .compact();
 
+        HashMap<String ,Object> map = new HashMap<>();
         //当用户登录成功之后，将token存入redis
         try {
             String userInfo = objectMapper.writeValueAsString(emp);
-            stringRedisTemplate.boundValueOps(token).set(userInfo, 30, TimeUnit.MINUTES);
+            stringRedisTemplate.boundValueOps(token).set(userInfo, 6, TimeUnit.HOURS);
+
+            map.put("token",token);
+            map.put("ranking",emp.getRanking());
         } catch (JsonProcessingException e) {
             return ResultVO.error("出现异常！");
         }
-        return ResultVO.success("登录成功！",token);
+
+        return ResultVO.success("登录成功！",map);
     }
 
     @PostMapping("/loginOut")

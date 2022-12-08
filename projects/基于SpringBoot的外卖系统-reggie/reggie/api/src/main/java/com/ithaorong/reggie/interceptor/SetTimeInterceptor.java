@@ -21,7 +21,7 @@ public class SetTimeInterceptor implements HandlerInterceptor {
         if(token != null){
             String s = stringRedisTemplate.boundValueOps(token).get();
             if(s != null){
-                stringRedisTemplate.boundValueOps(token).expire(30, TimeUnit.MINUTES);
+                stringRedisTemplate.boundValueOps(token).expire(6, TimeUnit.HOURS);
             }
         }
         return true;
